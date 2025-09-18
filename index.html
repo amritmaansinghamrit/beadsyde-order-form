@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beadsyde - Order Your Infinity Essentials</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Daydream&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -33,7 +34,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--neutral-beige);
             color: var(--text-dark);
             line-height: 1.5;
@@ -93,8 +94,9 @@
         }
 
         .brand-name {
+            font-family: 'Daydream', cursive;
             font-size: 2.8em;
-            font-weight: 700;
+            font-weight: normal;
             color: var(--primary-blue);
             margin: 0;
             letter-spacing: -0.02em;
@@ -808,6 +810,31 @@
                 padding: 14px 16px;
             }
         }
+
+        .footer {
+            background: var(--primary-blue);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .instagram-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .instagram-link:hover {
+            color: var(--neutral-beige);
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -835,26 +862,20 @@
                 </div>
                 <h1 class="brand-name">Beadsyde</h1>
             </div>
-            <p class="tagline">Premium Jewelry Collection</p>
-            <div class="header-decoration">
-                <div class="decoration-dot"></div>
-                <div class="decoration-dot center"></div>
-                <div class="decoration-dot"></div>
-            </div>
         </div>
 
         <!-- Main Form -->
         <div class="form-section">
             <div class="section-header">
                 <h2 class="section-title">Choose Your Jewelry</h2>
-                <p class="section-subtitle">Premium anti-tarnish stainless steel • Waterproof with care</p>
+                <p class="section-subtitle">Premium anti-tarnish stainless steel • Waterproof with care<br>Create your unique style</p>
             </div>
 
             <!-- Products -->
             <div class="products-container">
                 <!-- Necklace -->
                 <div class="product-group">
-                    <h3 class="product-group-title">💎 Infinity Necklace - ₹499</h3>
+                    <h3 class="product-group-title">∞ Infinity Necklace</h3>
                     <div class="product-variants">
                         <!-- Silver Necklace -->
                         <div class="product-card" data-product="necklace" data-variant="silver" data-price="499">
@@ -922,7 +943,7 @@
 
                 <!-- Bracelet -->
                 <div class="product-group">
-                    <h3 class="product-group-title">💎 Infinity Bracelet - ₹349</h3>
+                    <h3 class="product-group-title">∞ Infinity Bracelet</h3>
                     <div class="product-variants">
                         <!-- Silver Bracelet -->
                         <div class="product-card" data-product="bracelet" data-variant="silver" data-price="349">
@@ -1108,6 +1129,13 @@
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <p>Follow us on Instagram: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="instagram-link">@beadsyde</a></p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1124,7 +1152,21 @@
             setupCartHandlers();
             setupValidation();
             setupSubmission();
+            setupCartIconClick();
             updateCartDisplay();
+        }
+
+        function setupCartIconClick() {
+            const cartIcon = document.getElementById('cartIcon');
+            if (cartIcon) {
+                cartIcon.addEventListener('click', function() {
+                    // Scroll to cart section
+                    const cartSection = document.getElementById('orderSummary') || document.querySelector('.summary-container');
+                    if (cartSection) {
+                        cartSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
         }
 
         function setupCartHandlers() {
@@ -1208,7 +1250,7 @@
             }, 1000);
 
             updateCartDisplay();
-            validateForm();
+            // Don't validate form when just adding to cart
         }
 
         function removeFromCart(productKey) {
@@ -1231,7 +1273,7 @@
             updateQuantityButtons(productKey);
 
             updateCartDisplay();
-            validateForm();
+            // Don't validate form when removing from cart
         }
 
         function updateCartDisplay() {

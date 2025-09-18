@@ -44,7 +44,7 @@
 
         .container {
             max-width: 900px;
-            margin: 150px auto 80px auto;
+            margin: 120px auto 80px auto;
             background: var(--pure-white);
             border-radius: var(--border-radius-large);
             box-shadow: var(--shadow-soft);
@@ -54,7 +54,7 @@
         /* Modern Header */
         .header {
             background: linear-gradient(135deg, var(--pure-white) 0%, #f8faff 100%);
-            padding: 50px 40px 40px;
+            padding: 30px 40px 25px;
             text-align: center;
             border-bottom: 1px solid var(--border-light);
             position: fixed;
@@ -439,8 +439,9 @@
         /* Modern Input Styles */
         .customer-details {
             background: var(--neutral-beige);
-            margin: 0 -40px;
+            margin: 20px 0;
             padding: 40px;
+            border-radius: var(--border-radius);
         }
 
         .form-row {
@@ -775,7 +776,14 @@
 
             .form-section,
             .customer-details {
+                margin: 15px;
                 padding: 24px 20px;
+                border-radius: var(--border-radius);
+            }
+
+            .address-landmark-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
 
             .header {
@@ -844,12 +852,23 @@
                 text-align: center;
             }
 
-            .delivery-items {
-                justify-content: center;
+            .delivery-details {
+                flex-direction: column;
+                align-items: center;
                 gap: 15px;
             }
 
+            .delivery-item {
+                justify-content: center;
+                text-align: center;
+            }
+
             .address-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .address-landmark-row {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }

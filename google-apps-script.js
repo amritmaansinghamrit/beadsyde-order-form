@@ -10,6 +10,9 @@ function doPost(e) {
     const spreadsheet = getOrCreateOrderSheet();
     const sheet = spreadsheet.getActiveSheet();
 
+    // Generate proper order number with counter
+    orderData.orderNumber = generateOrderNumber(sheet);
+
     // Log the order
     logOrderToSheet(sheet, orderData);
 
@@ -174,6 +177,26 @@ function testOrderLogging() {
 
   console.log('✅ Test order logged successfully!');
   console.log('📋 Spreadsheet URL:', spreadsheet.getUrl());
+}
+
+// Generate order number with server-side counter
+function generateOrderNumber(sheet) {
+  // Get the last order number from the sheet
+  const lastRow = sheet.getLastRow();
+  let orderCounter = 25001; // Starting number
+
+  if (lastRow > 1) {
+    // Get the last order number from column B (Order Number)
+    const lastOrderNumber = sheet.getRange(lastRow, 2).getValue();
+    if (lastOrderNumber && typeof lastOrderNumber === 'string' && lastOrderNumber.startsWith('IN')) {
+      const lastNumber = parseInt(lastOrderNumber.replace('IN', ''));
+      if (!isNaN(lastNumber)) {
+        orderCounter = lastNumber + 1;
+      }
+    }
+  }
+
+  return `IN${orderCounter}`;
 }
 
 // Utility function to get spreadsheet URL

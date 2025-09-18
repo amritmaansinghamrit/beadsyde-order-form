@@ -917,8 +917,7 @@
                         <!-- Silver Necklace -->
                         <div class="product-card" data-product="necklace" data-variant="silver" data-price="499">
                             <div class="product-image-container">
-                                <img src="images/infinity necklace silver.jpg" alt="Infinity Necklace Silver" class="product-image">
-                                <div class="variant-badge">Silver</div>
+                                <img src="images/silver necklace.png" alt="Infinity Necklace Silver" class="product-image">
                             </div>
                             <div class="product-info">
                                 <h4 class="product-name">Infinity Silver Necklace</h4>
@@ -948,7 +947,6 @@
                         <div class="product-card" data-product="necklace" data-variant="gold" data-price="499">
                             <div class="product-image-container">
                                 <img src="images/infinity necklace gold.jpg" alt="Infinity Necklace Gold" class="product-image">
-                                <div class="variant-badge">Golden</div>
                             </div>
                             <div class="product-info">
                                 <h4 class="product-name">Infinity Golden Necklace</h4>
@@ -984,7 +982,6 @@
                         <div class="product-card" data-product="bracelet" data-variant="silver" data-price="349">
                             <div class="product-image-container">
                                 <img src="images/infinity bracelet silver.jpg" alt="Infinity Bracelet Silver" class="product-image">
-                                <div class="variant-badge">Silver</div>
                             </div>
                             <div class="product-info">
                                 <h4 class="product-name">Infinity Silver Bracelet</h4>
@@ -1014,7 +1011,6 @@
                         <div class="product-card" data-product="bracelet" data-variant="gold" data-price="349">
                             <div class="product-image-container">
                                 <img src="images/infinity bracelet gold.jpg" alt="Infinity Bracelet Gold" class="product-image">
-                                <div class="variant-badge">Golden</div>
                             </div>
                             <div class="product-info">
                                 <h4 class="product-name">Infinity Golden Bracelet</h4>
@@ -1101,6 +1097,13 @@
                     <i class="fas fa-times validation-icon error"></i>
                     <div class="error-message">6-digit PIN</div>
                 </div>
+
+                <div class="form-group">
+                    <label for="addressLandmark">Landmark (Optional)</label>
+                    <input type="text" id="addressLandmark" placeholder="Near hospital, mall, etc.">
+                    <i class="fas fa-check validation-icon success"></i>
+                    <i class="fas fa-times validation-icon error"></i>
+                </div>
             </div>
 
             <div class="form-row full-width">
@@ -1176,16 +1179,11 @@
         let cart = {};
         let cartCount = 0;
 
-        // Generate order number with counter
+        // Generate order number with timestamp (will be replaced by server counter)
         function generateOrderNumber() {
-            let orderCounter = localStorage.getItem('beadsydeOrderCounter');
-            if (!orderCounter) {
-                orderCounter = 25001;
-            } else {
-                orderCounter = parseInt(orderCounter) + 1;
-            }
-            localStorage.setItem('beadsydeOrderCounter', orderCounter);
-            return `IN${orderCounter}`;
+            // Temporary client-side ID, server will replace with proper counter
+            const timestamp = Date.now().toString().slice(-6);
+            return `IN${timestamp}`;
         }
 
         // Initialize form on page load
@@ -1559,12 +1557,14 @@
                     line1: document.getElementById('addressLine1').value.trim(),
                     city: document.getElementById('addressCity').value.trim(),
                     state: document.getElementById('addressState').value.trim(),
-                    pincode: document.getElementById('addressPincode').value.trim()
+                    pincode: document.getElementById('addressPincode').value.trim(),
+                    landmark: document.getElementById('addressLandmark').value.trim()
                 },
                 specialNotes: document.getElementById('specialNotes').value.trim()
             };
 
-            const fullAddress = `${customerData.address.line1}, ${customerData.address.city}, ${customerData.address.state} - ${customerData.address.pincode}`;
+            const landmarkText = customerData.address.landmark ? `, Near ${customerData.address.landmark}` : '';
+            const fullAddress = `${customerData.address.line1}, ${customerData.address.city}, ${customerData.address.state} - ${customerData.address.pincode}${landmarkText}`;
 
             const itemsTotal = selectedProducts.reduce((sum, product) => sum + product.total, 0);
             const shippingCost = itemsTotal >= 999 ? 0 : 100;
@@ -1688,7 +1688,7 @@
             });
 
             // Reset form fields
-            const fieldIds = ['customerName', 'customerPhone', 'addressLine1', 'addressCity', 'addressState', 'addressPincode', 'specialNotes'];
+            const fieldIds = ['customerName', 'customerPhone', 'addressLine1', 'addressCity', 'addressState', 'addressPincode', 'addressLandmark', 'specialNotes'];
             fieldIds.forEach(fieldId => {
                 document.getElementById(fieldId).value = '';
             });

@@ -57,7 +57,9 @@
             padding: 50px 40px 40px;
             text-align: center;
             border-bottom: 1px solid var(--border-light);
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .header::before {
@@ -101,6 +103,18 @@
             margin: 0;
             letter-spacing: -0.02em;
             text-shadow: 0 2px 4px rgba(46, 91, 186, 0.1);
+        }
+
+        .brand-subheading {
+            font-size: 1.1em;
+            color: var(--text-medium);
+            margin: 8px 0 0 0;
+            font-weight: 400;
+        }
+
+        .infinity-text {
+            font-family: 'Daydream', cursive;
+            font-weight: normal;
         }
 
         .tagline {
@@ -809,6 +823,25 @@
             .form-group textarea {
                 padding: 14px 16px;
             }
+
+            .delivery-info {
+                text-align: center;
+            }
+
+            .delivery-items {
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .address-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
 
         .footer {
@@ -817,6 +850,9 @@
             text-align: center;
             padding: 20px;
             margin-top: 30px;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
         }
 
         .footer-content {
@@ -861,14 +897,15 @@
                     <img src="images/beadsyde logo.jpg" alt="Beadsyde Logo">
                 </div>
                 <h1 class="brand-name">Beadsyde</h1>
+                <p class="brand-subheading">Create your unique style</p>
             </div>
         </div>
 
         <!-- Main Form -->
         <div class="form-section">
             <div class="section-header">
-                <h2 class="section-title">Choose Your Jewelry</h2>
-                <p class="section-subtitle">Premium anti-tarnish stainless steel • Waterproof with care<br>Create your unique style</p>
+                <h2 class="section-title">Choose Your <span class="infinity-text">Infinity</span></h2>
+                <p class="section-subtitle">Premium Anti-Tarnish Stainless Steel • Waterproof With Care</p>
             </div>
 
             <!-- Products -->
@@ -884,9 +921,8 @@
                                 <div class="variant-badge">Silver</div>
                             </div>
                             <div class="product-info">
-                                <h4 class="product-name">Silver Necklace</h4>
+                                <h4 class="product-name">Infinity Silver Necklace</h4>
                                 <div class="product-price">₹499</div>
-                                <p class="product-description">Premium silver finish with elegant infinity design</p>
                             </div>
                             <div class="cart-controls">
                                 <div class="quantity-selector">
@@ -912,12 +948,11 @@
                         <div class="product-card" data-product="necklace" data-variant="gold" data-price="499">
                             <div class="product-image-container">
                                 <img src="images/infinity necklace gold.jpg" alt="Infinity Necklace Gold" class="product-image">
-                                <div class="variant-badge">Gold</div>
+                                <div class="variant-badge">Golden</div>
                             </div>
                             <div class="product-info">
-                                <h4 class="product-name">Gold Necklace</h4>
+                                <h4 class="product-name">Infinity Golden Necklace</h4>
                                 <div class="product-price">₹499</div>
-                                <p class="product-description">Premium gold finish with elegant infinity design</p>
                             </div>
                             <div class="cart-controls">
                                 <div class="quantity-selector">
@@ -952,9 +987,8 @@
                                 <div class="variant-badge">Silver</div>
                             </div>
                             <div class="product-info">
-                                <h4 class="product-name">Silver Bracelet</h4>
+                                <h4 class="product-name">Infinity Silver Bracelet</h4>
                                 <div class="product-price">₹349</div>
-                                <p class="product-description">Premium silver finish with elegant infinity design</p>
                             </div>
                             <div class="cart-controls">
                                 <div class="quantity-selector">
@@ -980,12 +1014,11 @@
                         <div class="product-card" data-product="bracelet" data-variant="gold" data-price="349">
                             <div class="product-image-container">
                                 <img src="images/infinity bracelet gold.jpg" alt="Infinity Bracelet Gold" class="product-image">
-                                <div class="variant-badge">Gold</div>
+                                <div class="variant-badge">Golden</div>
                             </div>
                             <div class="product-info">
-                                <h4 class="product-name">Gold Bracelet</h4>
+                                <h4 class="product-name">Infinity Golden Bracelet</h4>
                                 <div class="product-price">₹349</div>
-                                <p class="product-description">Premium gold finish with elegant infinity design</p>
                             </div>
                             <div class="cart-controls">
                                 <div class="quantity-selector">
@@ -1015,7 +1048,7 @@
         <div class="customer-details">
             <div class="section-header">
                 <h2 class="section-title">Your Details</h2>
-                <p class="section-subtitle">We need these details to deliver your jewelry</p>
+                <p class="section-subtitle">We need this to deliver your infinity at your doorstep!</p>
             </div>
 
             <div class="form-row">
@@ -1072,7 +1105,7 @@
 
             <div class="form-row full-width">
                 <div class="form-group">
-                    <label for="specialNotes">Special Instructions (Optional)</label>
+                    <label for="specialNotes">Special message for your beloved</label>
                     <textarea id="specialNotes" rows="3" placeholder="Gift wrapping, delivery notes, etc."></textarea>
                 </div>
             </div>
@@ -1116,7 +1149,7 @@
                 <div class="delivery-details">
                     <div class="delivery-item">
                         <i class="fas fa-clock"></i>
-                        <span>4-6 working days</span>
+                        <span>4-6 working days (🇮🇳 India Only)</span>
                     </div>
                     <div class="delivery-item">
                         <i class="fas fa-credit-card"></i>
@@ -1133,7 +1166,7 @@
         <!-- Footer -->
         <div class="footer">
             <div class="footer-content">
-                <p>Follow us on Instagram: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="instagram-link">@beadsyde</a></p>
+                <p><i class="fab fa-instagram"></i> Follow us on Instagram: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="instagram-link">@beadsyde</a></p>
             </div>
         </div>
     </div>
@@ -1142,6 +1175,18 @@
         // Shopping cart state
         let cart = {};
         let cartCount = 0;
+
+        // Generate order number with counter
+        function generateOrderNumber() {
+            let orderCounter = localStorage.getItem('beadsydeOrderCounter');
+            if (!orderCounter) {
+                orderCounter = 25001;
+            } else {
+                orderCounter = parseInt(orderCounter) + 1;
+            }
+            localStorage.setItem('beadsydeOrderCounter', orderCounter);
+            return `IN${orderCounter}`;
+        }
 
         // Initialize form on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -1296,12 +1341,13 @@
 
                 // Build cart items
                 summaryItems.innerHTML = '';
-                let total = 100; // Shipping cost
+                let itemsTotal = 0;
+                let shippingCost = 100;
 
                 Object.keys(cart).forEach(productKey => {
                     const item = cart[productKey];
                     const itemTotal = item.price * item.quantity;
-                    total += itemTotal;
+                    itemsTotal += itemTotal;
 
                     const summaryItem = document.createElement('div');
                     summaryItem.className = 'summary-item';
@@ -1317,6 +1363,19 @@
                     `;
                     summaryItems.appendChild(summaryItem);
                 });
+
+                // Calculate shipping based on threshold
+                if (itemsTotal >= 999) {
+                    shippingCost = 0;
+                }
+
+                const total = itemsTotal + shippingCost;
+
+                // Update shipping display
+                const shippingElement = document.querySelector('.total-row span:last-child');
+                if (shippingElement) {
+                    shippingElement.textContent = shippingCost === 0 ? 'FREE' : `₹${shippingCost}`;
+                }
 
                 totalAmountElement.textContent = `₹${total}`;
             }
@@ -1507,7 +1566,9 @@
 
             const fullAddress = `${customerData.address.line1}, ${customerData.address.city}, ${customerData.address.state} - ${customerData.address.pincode}`;
 
-            const total = selectedProducts.reduce((sum, product) => sum + product.total, 100);
+            const itemsTotal = selectedProducts.reduce((sum, product) => sum + product.total, 0);
+            const shippingCost = itemsTotal >= 999 ? 0 : 100;
+            const total = itemsTotal + shippingCost;
 
             return {
                 products: selectedProducts,
@@ -1515,10 +1576,10 @@
                     ...customerData,
                     fullAddress: fullAddress
                 },
-                shipping: 100,
+                shipping: shippingCost,
                 total: total,
                 orderDate: new Date().toLocaleString('en-IN'),
-                orderNumber: 'BD' + Date.now().toString().slice(-6)
+                orderNumber: generateOrderNumber()
             };
         }
 
@@ -1547,7 +1608,7 @@
             message += `Shipping: Rs.${orderData.shipping}\n`;
             message += `FINAL TOTAL: Rs.${orderData.total}\n\n`;
 
-            message += `Delivery: 4-6 days | Online Payment Only`;
+            message += `Delivery: 4-6 days | Online Payment Only | 🇮🇳 India Only`;
 
             return encodeURIComponent(message);
         }

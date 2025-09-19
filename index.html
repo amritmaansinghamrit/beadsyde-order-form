@@ -2010,8 +2010,17 @@ Pay to: khemkakshama64-1@oksbi (Beadsyde)`;
             });
             customMessage += ` - Total: Rs.${orderData.total}`;
 
-            // Simple UPI deep link format
+            // Complete UPI deep link format with all parameters
             const upiUrl = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&mc=${encodeURIComponent(merchantCode)}&am=${amount}&cu=${currency}&msg=${encodeURIComponent(customMessage)}`;
+
+            console.log('Generated UPI Link with all parameters:');
+            console.log('- VPA:', vpa);
+            console.log('- Payee Name:', payeeName);
+            console.log('- Merchant Code:', merchantCode);
+            console.log('- Amount:', amount);
+            console.log('- Currency:', currency);
+            console.log('- Custom Message:', customMessage);
+            console.log('- Complete UPI URL:', upiUrl);
 
             return upiUrl;
         }

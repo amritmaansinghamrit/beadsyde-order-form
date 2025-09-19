@@ -2009,7 +2009,7 @@ ${upiLink}
             const vpa = 'khemkakshama64-1@oksbi';
             const payeeName = 'Beadsyde';
             const merchantCode = 'BD001';
-            const amount = orderData.total;
+            const amount = orderData.total.toFixed(2); // Ensure amount has 2 decimal places
             const currency = 'INR';
 
             // Generate transaction note with essential details
@@ -2027,10 +2027,16 @@ ${upiLink}
             console.log('- VPA (pa):', vpa);
             console.log('- Payee Name (pn):', payeeName);
             console.log('- Merchant Code (mc):', merchantCode);
-            console.log('- Amount (am):', amount);
+            console.log('- Amount (am):', amount, '(Type:', typeof amount, ')');
             console.log('- Currency (cu):', currency);
             console.log('- Transaction Note (tn):', transactionNote);
-            console.log('- Complete UPI URL Length:', upiUrl.length);
+            console.log('- Complete UPI URL:', upiUrl);
+            console.log('- Amount in URL:', upiUrl.includes(`am=${amount}`) ? 'FOUND' : 'MISSING');
+            console.log('- URL Length:', upiUrl.length);
+
+            // Test amount extraction from URL
+            const urlParams = new URLSearchParams(upiUrl.split('?')[1]);
+            console.log('- Amount extracted from URL:', urlParams.get('am'));
 
             return upiUrl;
         }

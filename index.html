@@ -1289,7 +1289,7 @@
                 <div class="payment-options">
                     <div class="upi-section">
                         <h3>🎯 Pay via UPI</h3>
-                        <p><strong>Pay to:</strong> rashi.khemka631@okhdfcbank</p>
+                        <p><strong>Pay to:</strong> khemkakshama64-1@oksbhi</p>
                         <p><strong>Name:</strong> Rashi</p>
                         <p><strong>Transaction ID:</strong> <span id="transactionId"></span></p>
 
@@ -2295,21 +2295,21 @@ FINAL TOTAL: Rs.${orderData.total} ✅
         }
 
         function generateUPILink(orderData, transactionId) {
-            const vpa = 'rashi.khemka631@okhdfcbank';
+            const vpa = 'khemkakshama64-1@oksbhi';
             const payeeName = 'Rashi';
             const amount = orderData.total;
-            const whatsappMessage = generateWhatsAppMessage(orderData);
-            const whatsappUrl = `https://api.whatsapp.com/send/?phone=918104563011&text=${whatsappMessage}`;
 
-            // UPI deep link format
-            const upiUrl = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tid=${transactionId}&tr=${transactionId}&url=${encodeURIComponent(whatsappUrl)}`;
+            // UPI deep link format (simplified - no callback URL as it causes issues)
+            const upiUrl = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tid=${transactionId}&tr=${transactionId}`;
 
             return upiUrl;
         }
 
         function generateQRCode(upiUrl) {
             // Use QR Server API to generate QR code
+            console.log('Generating QR for UPI URL:', upiUrl);
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+            console.log('QR Code URL:', qrUrl);
             return qrUrl;
         }
 
@@ -2353,16 +2353,25 @@ FINAL TOTAL: Rs.${orderData.total} ✅
 
             // Generate UPI link and QR code
             const upiUrl = generateUPILink(orderData, transactionId);
-            const qrCodeUrl = generateQRCode(upiUrl);
+            console.log('Generated UPI URL:', upiUrl);
 
             // Set up UPI button for mobile
             document.getElementById('upiPayBtn').onclick = function() {
+                console.log('UPI button clicked, redirecting to:', upiUrl);
                 window.location.href = upiUrl;
             };
 
             // Set up QR code for desktop
             const qrContainer = document.getElementById('qrContainer');
-            qrContainer.innerHTML = `<img src="${qrCodeUrl}" alt="UPI QR Code" style="max-width: 100%; height: auto;">`;
+            const qrCodeUrl = generateQRCode(upiUrl);
+
+            qrContainer.innerHTML = `
+                <img src="${qrCodeUrl}"
+                     alt="UPI QR Code"
+                     style="max-width: 100%; height: auto;"
+                     onload="console.log('QR Code loaded successfully')"
+                     onerror="console.error('QR Code failed to load'); this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjBmMGYwIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzY2NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIGxvYWRpbmcgUVI8L3RleHQ+PC9zdmc+'; this.alt='QR Code Error';">
+            `;
 
             // Show payment screen
             paymentOverlay.style.display = 'flex';

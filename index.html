@@ -1854,34 +1854,45 @@
         }
 
         function generateWhatsAppMessage(orderData) {
-            let message = `🩵 NEW ORDER - BEADSYDE 🩵\n\n`;
+            let message = `🩵 NEW ORDER - BEADSYDE 🩵
 
-            message += `🗓️DATE: ${orderData.orderDate}\n\n`;
+🗓️DATE: ${orderData.orderDate}
 
-            message += `✨CUSTOMER\n`;
-            message += `Name: ${orderData.customer.name}\n`;
-            message += `Phone: ${orderData.customer.phone}\n`;
-            message += `Address: ${orderData.customer.fullAddress}\n\n`;
+✨CUSTOMER
+Name: ${orderData.customer.name}
+Phone: ${orderData.customer.phone}
+Address: ${orderData.customer.fullAddress}
 
-            message += `✨ITEMS\n`;
+✨ITEMS
+`;
             orderData.products.forEach((product, index) => {
-                message += `${index + 1}.⁠ ⁠${product.name} (${product.variant}) x${product.quantity} = Rs.${product.total}\n`;
+                message += `${index + 1}.⁠ ⁠${product.name} (${product.variant}) x${product.quantity} = Rs.${product.total}
+`;
             });
 
-            message += `\n💬NOTES`;
+            message += `
+💬NOTES`;
             if (orderData.customer.specialNotes) {
                 message += `: ${orderData.customer.specialNotes}`;
             }
-            message += `\n`;
 
-            message += `\n✨TOTAL:\n`;
-            message += `Items: Rs.${orderData.total - orderData.shipping}\n`;
-            message += `Shipping: Rs.${orderData.shipping}\n`;
-            message += `FINAL TOTAL: Rs.${orderData.total} ✅\n\n`;
+            message += `
 
-            message += `🚚 Delivering Pan India: 4-6 days | 🌟Online Payment Only`;
+✨TOTAL:
+Items: Rs.${orderData.total - orderData.shipping}
+Shipping: Rs.${orderData.shipping}
+FINAL TOTAL: Rs.${orderData.total} ✅
 
-            return encodeURIComponent(message);
+🚚 Delivering Pan India: 4-6 days | 🌟Online Payment Only`;
+
+            // For WhatsApp, we need to keep emojis as raw Unicode and only encode necessary characters
+            // Replace spaces, newlines and special characters manually while preserving emojis
+            return message
+                .replace(/ /g, '%20')
+                .replace(/\n/g, '%0A')
+                .replace(/:/g, '%3A')
+                .replace(/\|/g, '%7C')
+                .replace(/-/g, '%2D');
         }
 
         async function logToGoogleSheets(orderData) {

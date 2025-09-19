@@ -44,7 +44,7 @@
 
         .container {
             max-width: 900px;
-            margin: 120px auto 80px auto;
+            margin: 0 auto 50px auto;
             background: var(--pure-white);
             border-radius: var(--border-radius-large);
             box-shadow: var(--shadow-soft);
@@ -54,14 +54,12 @@
         /* Modern Header */
         .header {
             background: linear-gradient(135deg, var(--pure-white) 0%, #f8faff 100%);
-            padding: 30px 40px 25px;
+            padding: 30px 20px 25px;
             text-align: center;
             border-bottom: 1px solid var(--border-light);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
+            position: relative;
+            max-width: 450px;
+            margin: 0 auto;
         }
 
         .header::before {
@@ -883,7 +881,7 @@
             background: var(--primary-blue);
             color: white;
             text-align: center;
-            padding: 20px;
+            padding: 10px;
             position: fixed;
             bottom: 0;
             left: 0;
@@ -941,8 +939,8 @@
         <!-- Main Form -->
         <div class="form-section">
             <div class="section-header">
-                <h2 class="section-title">Choose Your <span class="infinity-text">Infinity</span></h2>
-                <p class="section-subtitle">Premium Anti-Tarnish Stainless Steel • Waterproof With Love And Care</p>
+                <h2 class="section-title"><strong>Choose Your <span class="infinity-text">Infinity</span></strong></h2>
+                <p class="section-subtitle">Premium Anti-Tarnish Stainless Steel • Waterproof with Love and Care</p>
             </div>
 
             <!-- Products -->
@@ -1220,9 +1218,9 @@
         let cart = {};
         let cartCount = 0;
 
-        // Generate order number with timestamp (will be replaced by server counter)
+        // Generate temporary order number (server will assign final number)
         function generateOrderNumber() {
-            // Temporary client-side ID, server will replace with proper counter
+            // Temporary ID for client-side display, server will replace with sequential number
             const timestamp = Date.now().toString().slice(-6);
             return `IN${timestamp}`;
         }

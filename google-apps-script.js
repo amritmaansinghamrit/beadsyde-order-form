@@ -179,24 +179,50 @@ function testOrderLogging() {
   console.log('📋 Spreadsheet URL:', spreadsheet.getUrl());
 }
 
-// Generate order number with server-side counter
+// Generate order number with server-side counter and locking
 function generateOrderNumber(sheet) {
-  // Get the last order number from the sheet
-  const lastRow = sheet.getLastRow();
-  let orderCounter = 25001; // Starting number
+  // Use lock to prevent concurrent access issues
+  const lock = LockService.getScriptLock();
 
-  if (lastRow > 1) {
-    // Get the last order number from column B (Order Number)
-    const lastOrderNumber = sheet.getRange(lastRow, 2).getValue();
-    if (lastOrderNumber && typeof lastOrderNumber === 'string' && lastOrderNumber.startsWith('IN')) {
-      const lastNumber = parseInt(lastOrderNumber.replace('IN', ''));
-      if (!isNaN(lastNumber)) {
-        orderCounter = lastNumber + 1;
+  try {
+    lock.waitLock(10000); // Wait up to 10 seconds
+
+    // Get counter from PropertiesService for persistence
+    const properties = PropertiesService.getScriptProperties();
+    let orderCounter = properties.getProperty('ORDER_COUNTER');
+
+    if (!orderCounter) {
+      // Initialize counter - check sheet for last order
+      const lastRow = sheet.getLastRow();
+      orderCounter = 25001; // Starting number
+
+      if (lastRow > 1) {
+        // Get the last order number from column B (Order Number)
+        const lastOrderNumber = sheet.getRange(lastRow, 2).getValue();
+        if (lastOrderNumber && typeof lastOrderNumber === 'string' && lastOrderNumber.startsWith('IN')) {
+          const lastNumber = parseInt(lastOrderNumber.replace('IN', ''));
+          if (!isNaN(lastNumber)) {
+            orderCounter = lastNumber + 1;
+          }
+        }
       }
+    } else {
+      orderCounter = parseInt(orderCounter) + 1;
     }
-  }
 
-  return `IN${orderCounter}`;
+    // Save the updated counter
+    properties.setProperty('ORDER_COUNTER', orderCounter.toString());
+
+    return `IN${orderCounter}`;
+
+  } catch (e) {
+    console.error('Error generating order number:', e);
+    // Fallback to timestamp-based ID
+    const timestamp = Date.now().toString().slice(-6);
+    return `IN${timestamp}`;
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 // Utility function to get spreadsheet URL

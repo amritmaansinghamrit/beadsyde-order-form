@@ -1796,18 +1796,13 @@
             const hasCartItems = cartCount > 0;
             const submitBtn = document.getElementById('submitOrder');
 
+            // Always enable button and show "Place Order"
+            submitBtn.disabled = false;
+
             if (allValid && hasCartItems && allFieldsFilled) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Complete Order via WhatsApp';
+                submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Place Order via WhatsApp';
             } else {
-                submitBtn.disabled = false; // Enable button for scroll functionality
-                if (!hasCartItems) {
-                    submitBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add items to cart first';
-                } else if (!allFieldsFilled) {
-                    submitBtn.innerHTML = '<i class="fas fa-user"></i> Complete Contact Details';
-                } else {
-                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Fix validation errors';
-                }
+                submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Place Order';
             }
         }
 
@@ -1919,20 +1914,28 @@
                 });
 
                 // If not ready to submit, handle scrolling and prompts
-                if (!hasCartItems) {
-                    // Scroll to products section
+                if (!hasCartItems && !allFieldsFilled) {
+                    // Both missing - scroll to products first
                     const productsSection = document.querySelector('.products-container');
                     if (productsSection) {
                         productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        showPrompt('Please select some products to add to your cart!');
+                        showPrompt('🛍️ First, please select the jewelry you want to order. Then fill in your contact details below.');
+                    }
+                    return;
+                } else if (!hasCartItems) {
+                    // Only products missing
+                    const productsSection = document.querySelector('.products-container');
+                    if (productsSection) {
+                        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        showPrompt('🛍️ Please select some jewelry to add to your cart first!');
                     }
                     return;
                 } else if (!allFieldsFilled) {
-                    // Scroll to contact details section
+                    // Only contact details missing
                     const contactSection = document.querySelector('.customer-details');
                     if (contactSection) {
                         contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        showPrompt('Please fill in all contact details to complete your order!');
+                        showPrompt('📝 Please fill in your contact details so we can deliver your jewelry!');
                     }
                     return;
                 }
@@ -1951,7 +1954,7 @@
                     // Generate WhatsApp message
                     const whatsappMessage = generateWhatsAppMessage(orderData);
                     const whatsappNumber = '918104563011';
-                    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+                    const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${whatsappMessage}`;
 
                     // Small delay for better UX
                     setTimeout(() => {

@@ -1299,7 +1299,7 @@
                 <button class="submit-btn" id="submitOrder" disabled>
                     <i class="fab fa-whatsapp"></i> Complete Order via WhatsApp
                 </button>
-                <p class="payment-info-text">📱 <strong>How it works:</strong> When you click the button, WhatsApp will open with an auto-filled message containing your order details and payment link. Simply send that message and click the payment link to complete your purchase. Share payment screenshot to confirm!</p>
+                <p class="payment-info-text">📱 <strong>How it works:</strong> Click the button to send your order via WhatsApp. You'll receive payment details (UPI ID: khemkakshama64-1@oksbi) in the message. Pay the amount and share payment screenshot to confirm your order!</p>
             </div>
 
             <!-- Delivery Info -->
@@ -1869,9 +1869,6 @@
         }
 
         function generateWhatsAppMessage(orderData) {
-            // Generate UPI link first
-            const upiLink = generateUPILink(orderData);
-
             let message = `🩵 NEW ORDER - BEADSYDE 🩵
 
 🗓️ ${orderData.orderDate}
@@ -1900,16 +1897,12 @@ FINAL TOTAL: Rs.${orderData.total} ✅
 
 🚚 Delivering Pan India in 4-6 working days
 
-💳 👇 Pay here and share a screenshot to confirm your order 👇
-${upiLink}
-👆 Click the link above to pay 👆`;
+💳 Pay to: khemkakshama64-1@oksbi (Beadsyde)
+Amount: Rs.${orderData.total}
+Share payment screenshot to confirm your order!`;
 
             // For WhatsApp, we need to keep emojis as raw Unicode and only encode necessary characters
-            // Protect UPI link from encoding by temporarily replacing it
-            const upiPlaceholder = '###UPI_LINK_PLACEHOLDER###';
-            const messageWithPlaceholder = message.replace(upiLink, upiPlaceholder);
-
-            const encodedMessage = messageWithPlaceholder
+            return message
                 .replace(/ /g, '%20')
                 .replace(/\n/g, '%0A')
                 .replace(/:/g, '%3A')
@@ -1917,17 +1910,6 @@ ${upiLink}
                 .replace(/\(/g, '%28')
                 .replace(/\)/g, '%29')
                 .replace(/-/g, '%2D');
-
-            // Restore the UPI link without encoding it
-            const finalMessage = encodedMessage.replace(upiPlaceholder, upiLink);
-
-            console.log('=== WhatsApp Message Debugging ===');
-            console.log('Original UPI Link:', upiLink);
-            console.log('UPI Link Length:', upiLink.length);
-            console.log('Message contains UPI link:', finalMessage.includes('upi://pay?pa='));
-            console.log('Full message length:', finalMessage.length);
-
-            return finalMessage;
         }
 
         async function logToGoogleSheets(orderData) {
@@ -2019,24 +2001,6 @@ ${upiLink}
         }
 
 
-        function generateUPILink(orderData) {
-            const vpa = 'khemkakshama64-1@oksbi';
-            const payeeName = 'Beadsyde';
-            const amount = orderData.total.toFixed(2);
-
-            // Minimal UPI link with only essential parameters to avoid WhatsApp truncation
-            const upiUrl = `upi://pay?pa=${vpa}&pn=${payeeName}&am=${amount}&cu=INR`;
-
-            console.log('Generated Minimal UPI Link:');
-            console.log('- VPA (pa):', vpa);
-            console.log('- Payee Name (pn):', payeeName);
-            console.log('- Amount (am):', amount);
-            console.log('- Currency (cu): INR');
-            console.log('- UPI URL:', upiUrl);
-            console.log('- URL Length:', upiUrl.length);
-
-            return upiUrl;
-        }
 
         function showPrompt(message) {
             // Create prompt element if it doesn't exist

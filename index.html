@@ -764,6 +764,251 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Payment Overlay */
+        .payment-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .payment-content {
+            background: white;
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--shadow-hover);
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .payment-header {
+            background: linear-gradient(135deg, var(--primary-blue), #3b6dd4);
+            color: white;
+            padding: 24px;
+            border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+            text-align: center;
+        }
+
+        .payment-header h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.5em;
+        }
+
+        .payment-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .payment-details {
+            padding: 24px;
+        }
+
+        .order-summary {
+            background: var(--neutral-beige);
+            padding: 16px;
+            border-radius: var(--border-radius);
+            margin-bottom: 24px;
+        }
+
+        .order-summary h3 {
+            margin: 0 0 12px 0;
+            color: var(--text-dark);
+            font-size: 1.1em;
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 2px solid white;
+        }
+
+        .total-amount {
+            color: var(--primary-blue);
+        }
+
+        .upi-section {
+            background: #f8fffe;
+            border: 2px solid #e6fffa;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .upi-section h3 {
+            margin: 0 0 12px 0;
+            color: var(--primary-blue);
+        }
+
+        .upi-section p {
+            margin: 4px 0;
+            font-size: 0.9em;
+        }
+
+        .mobile-payment, .desktop-payment {
+            margin: 20px 0;
+        }
+
+        .upi-pay-btn {
+            background: linear-gradient(135deg, #00C853, #2E7D32);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: var(--border-radius);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+            margin-bottom: 8px;
+        }
+
+        .upi-pay-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 200, 83, 0.3);
+        }
+
+        .payment-note, .qr-note {
+            font-size: 0.8em;
+            color: var(--text-medium);
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        .qr-section h4 {
+            margin: 16px 0 12px 0;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .qr-container {
+            background: white;
+            border: 2px solid var(--border-light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .qr-placeholder {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-medium);
+            background: #f9f9f9;
+            border-radius: var(--border-radius);
+        }
+
+        .payment-actions {
+            display: flex;
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .payment-done-btn {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+            transition: var(--transition);
+        }
+
+        .payment-done-btn:hover {
+            background: #2047a0;
+            transform: translateY(-1px);
+        }
+
+        .payment-back-btn {
+            background: var(--border-light);
+            color: var(--text-dark);
+            border: none;
+            padding: 14px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            flex: 0 0 auto;
+            transition: var(--transition);
+        }
+
+        .payment-back-btn:hover {
+            background: #d1d1d1;
+        }
+
+        .payment-info {
+            background: #f0f4ff;
+            border-left: 4px solid var(--primary-blue);
+            padding: 16px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin-top: 20px;
+        }
+
+        .payment-info p {
+            margin: 8px 0;
+            font-size: 0.9em;
+            color: var(--text-dark);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .payment-content {
+                margin: 10px;
+                max-height: 95vh;
+            }
+
+            .payment-details {
+                padding: 16px;
+            }
+
+            .payment-actions {
+                flex-direction: column;
+            }
+
+            .desktop-payment {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-payment {
+                display: none;
+            }
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             body {
@@ -1020,6 +1265,69 @@
             <div class="spinner"></div>
             <h3>Processing Order...</h3>
             <p>Preparing for WhatsApp</p>
+        </div>
+    </div>
+
+    <!-- Payment Screen -->
+    <div class="payment-overlay" id="paymentOverlay">
+        <div class="payment-content">
+            <div class="payment-header">
+                <h2>💳 Complete Payment</h2>
+                <p>Pay securely via UPI to complete your order</p>
+            </div>
+
+            <div class="payment-details">
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div id="paymentOrderItems"></div>
+                    <div class="total-row">
+                        <span>Total Amount: </span>
+                        <span class="total-amount" id="paymentTotal">₹0</span>
+                    </div>
+                </div>
+
+                <div class="payment-options">
+                    <div class="upi-section">
+                        <h3>🎯 Pay via UPI</h3>
+                        <p><strong>Pay to:</strong> rashi.khemka631@okhdfcbank</p>
+                        <p><strong>Name:</strong> Rashi</p>
+                        <p><strong>Transaction ID:</strong> <span id="transactionId"></span></p>
+
+                        <!-- Mobile UPI Button -->
+                        <div class="mobile-payment">
+                            <button class="upi-pay-btn" id="upiPayBtn">
+                                📱 Pay Now via UPI
+                            </button>
+                            <p class="payment-note">This will open your UPI app</p>
+                        </div>
+
+                        <!-- Desktop QR Code -->
+                        <div class="desktop-payment">
+                            <div class="qr-section">
+                                <h4>💻 Desktop? Scan QR Code</h4>
+                                <div class="qr-container" id="qrContainer">
+                                    <div class="qr-placeholder">Generating QR Code...</div>
+                                </div>
+                                <p class="qr-note">Scan with any UPI app on your phone</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-actions">
+                    <button class="payment-done-btn" id="paymentDoneBtn">
+                        ✅ I've Completed Payment
+                    </button>
+                    <button class="payment-back-btn" id="paymentBackBtn">
+                        ← Back to Order
+                    </button>
+                </div>
+
+                <div class="payment-info">
+                    <p><strong>🔒 Secure Payment:</strong> Pay directly to our UPI ID</p>
+                    <p><strong>📞 Support:</strong> Contact us at 918104563011 if you face any issues</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1387,6 +1695,7 @@
             setupCartHandlers();
             setupValidation();
             setupSubmission();
+            setupPaymentHandlers();
             setupCartIconClick();
             initializeStateDropdown();
             updateCartDisplay();
@@ -1964,16 +2273,11 @@ FINAL TOTAL: Rs.${orderData.total} ✅
                     // Log to Google Sheets
                     await logToGoogleSheets(orderData);
 
-                    // Generate WhatsApp message
-                    const whatsappMessage = generateWhatsAppMessage(orderData);
-                    const whatsappNumber = '918104563011';
-                    const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappNumber}&text=${whatsappMessage}`;
-
                     // Small delay for better UX
                     setTimeout(() => {
                         loadingOverlay.style.display = 'none';
-                        // Redirect to WhatsApp in same tab instead of popup
-                        window.location.href = whatsappUrl;
+                        // Show payment screen instead of direct WhatsApp redirect
+                        showPaymentScreen(orderData);
                     }, 1500);
 
                 } catch (error) {
@@ -1981,6 +2285,114 @@ FINAL TOTAL: Rs.${orderData.total} ✅
                     loadingOverlay.style.display = 'none';
                     alert('There was an error processing your order. Please try again or contact us directly.');
                 }
+            });
+        }
+
+        function generateTransactionId() {
+            const timestamp = Date.now().toString();
+            const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
+            return `BD${timestamp.slice(-6)}${randomString}`;
+        }
+
+        function generateUPILink(orderData, transactionId) {
+            const vpa = 'rashi.khemka631@okhdfcbank';
+            const payeeName = 'Rashi';
+            const amount = orderData.total;
+            const whatsappMessage = generateWhatsAppMessage(orderData);
+            const whatsappUrl = `https://api.whatsapp.com/send/?phone=918104563011&text=${whatsappMessage}`;
+
+            // UPI deep link format
+            const upiUrl = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tid=${transactionId}&tr=${transactionId}&url=${encodeURIComponent(whatsappUrl)}`;
+
+            return upiUrl;
+        }
+
+        function generateQRCode(upiUrl) {
+            // Use QR Server API to generate QR code
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUrl)}`;
+            return qrUrl;
+        }
+
+        function showPaymentScreen(orderData) {
+            const paymentOverlay = document.getElementById('paymentOverlay');
+            const transactionId = generateTransactionId();
+
+            // Store order data and transaction ID for later use
+            window.currentOrderData = orderData;
+            window.currentTransactionId = transactionId;
+
+            // Update transaction ID display
+            document.getElementById('transactionId').textContent = transactionId;
+
+            // Update order summary
+            const paymentOrderItems = document.getElementById('paymentOrderItems');
+            paymentOrderItems.innerHTML = '';
+
+            orderData.products.forEach(product => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'payment-item';
+                itemDiv.innerHTML = `
+                    <span>${product.name} (${product.variant}) x${product.quantity}</span>
+                    <span>₹${product.total}</span>
+                `;
+                paymentOrderItems.appendChild(itemDiv);
+            });
+
+            if (orderData.shipping > 0) {
+                const shippingDiv = document.createElement('div');
+                shippingDiv.className = 'payment-item';
+                shippingDiv.innerHTML = `
+                    <span>Shipping</span>
+                    <span>₹${orderData.shipping}</span>
+                `;
+                paymentOrderItems.appendChild(shippingDiv);
+            }
+
+            // Update total
+            document.getElementById('paymentTotal').textContent = `₹${orderData.total}`;
+
+            // Generate UPI link and QR code
+            const upiUrl = generateUPILink(orderData, transactionId);
+            const qrCodeUrl = generateQRCode(upiUrl);
+
+            // Set up UPI button for mobile
+            document.getElementById('upiPayBtn').onclick = function() {
+                window.location.href = upiUrl;
+            };
+
+            // Set up QR code for desktop
+            const qrContainer = document.getElementById('qrContainer');
+            qrContainer.innerHTML = `<img src="${qrCodeUrl}" alt="UPI QR Code" style="max-width: 100%; height: auto;">`;
+
+            // Show payment screen
+            paymentOverlay.style.display = 'flex';
+        }
+
+        function setupPaymentHandlers() {
+            // Payment done button
+            document.getElementById('paymentDoneBtn').addEventListener('click', function() {
+                const paymentOverlay = document.getElementById('paymentOverlay');
+                paymentOverlay.style.display = 'none';
+
+                // Generate WhatsApp message with transaction details
+                const orderData = window.currentOrderData;
+                const transactionId = window.currentTransactionId;
+
+                // Update WhatsApp message to include transaction ID
+                const originalMessage = generateWhatsAppMessage(orderData);
+                const messageWithTransaction = originalMessage.replace(
+                    '💬NOTES',
+                    `💳 TRANSACTION ID: ${transactionId}\n\n💬NOTES`
+                );
+
+                const whatsappUrl = `https://api.whatsapp.com/send/?phone=918104563011&text=${messageWithTransaction}`;
+                window.location.href = whatsappUrl;
+            });
+
+            // Back button
+            document.getElementById('paymentBackBtn').addEventListener('click', function() {
+                const paymentOverlay = document.getElementById('paymentOverlay');
+                paymentOverlay.style.display = 'none';
             });
         }
 

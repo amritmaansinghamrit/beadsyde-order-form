@@ -1292,7 +1292,6 @@
                         <p><strong>Pay to:</strong> khemkakshama64-1@oksbi</p>
                         <p><strong>Name:</strong> Beadsyde</p>
                         <p><strong>Merchant Code:</strong> BD001</p>
-                        <p><strong>Transaction ID:</strong> <span id="transactionId"></span></p>
 
                         <!-- Mobile UPI Button -->
                         <div class="mobile-payment">
@@ -2289,11 +2288,6 @@ FINAL TOTAL: Rs.${orderData.total} ✅
             });
         }
 
-        function generateTransactionId() {
-            const timestamp = Date.now().toString();
-            const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
-            return `BD${timestamp.slice(-6)}${randomString}`;
-        }
 
         function generateUPICustomMessage(orderData) {
             let message = `BEADSYDE ORDER\n\n`;
@@ -2318,7 +2312,7 @@ FINAL TOTAL: Rs.${orderData.total} ✅
             return message;
         }
 
-        function generateUPILink(orderData, transactionId) {
+        function generateUPILink(orderData) {
             const vpa = 'khemkakshama64-1@oksbi';
             const payeeName = 'Beadsyde';
             const merchantCode = 'BD001'; // Beadsyde merchant code
@@ -2332,8 +2326,8 @@ FINAL TOTAL: Rs.${orderData.total} ✅
             // Generate custom message with order details
             const customMessage = generateUPICustomMessage(orderData);
 
-            // Complete UPI deep link format
-            const upiUrl = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&mc=${encodeURIComponent(merchantCode)}&tid=${encodeURIComponent(transactionId)}&tr=${encodeURIComponent(transactionId)}&am=${amount}&cu=${currency}&url=${encodeURIComponent(whatsappUrl)}&msg=${encodeURIComponent(customMessage)}`;
+            // UPI deep link format without transaction ID
+            const upiUrl = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&mc=${encodeURIComponent(merchantCode)}&am=${amount}&cu=${currency}&url=${encodeURIComponent(whatsappUrl)}&msg=${encodeURIComponent(customMessage)}`;
 
             return upiUrl;
         }
@@ -2348,14 +2342,9 @@ FINAL TOTAL: Rs.${orderData.total} ✅
 
         function showPaymentScreen(orderData) {
             const paymentOverlay = document.getElementById('paymentOverlay');
-            const transactionId = generateTransactionId();
 
-            // Store order data and transaction ID for later use
+            // Store order data for later use
             window.currentOrderData = orderData;
-            window.currentTransactionId = transactionId;
-
-            // Update transaction ID display
-            document.getElementById('transactionId').textContent = transactionId;
 
             // Update order summary
             const paymentOrderItems = document.getElementById('paymentOrderItems');
@@ -2385,7 +2374,7 @@ FINAL TOTAL: Rs.${orderData.total} ✅
             document.getElementById('paymentTotal').textContent = `₹${orderData.total}`;
 
             // Generate UPI link and QR code
-            const upiUrl = generateUPILink(orderData, transactionId);
+            const upiUrl = generateUPILink(orderData);
             console.log('Generated UPI URL:', upiUrl);
 
             // Set up UPI button for mobile
@@ -2416,18 +2405,10 @@ FINAL TOTAL: Rs.${orderData.total} ✅
                 const paymentOverlay = document.getElementById('paymentOverlay');
                 paymentOverlay.style.display = 'none';
 
-                // Generate WhatsApp message with transaction details
+                // Generate WhatsApp message
                 const orderData = window.currentOrderData;
-                const transactionId = window.currentTransactionId;
-
-                // Update WhatsApp message to include transaction ID
-                const originalMessage = generateWhatsAppMessage(orderData);
-                const messageWithTransaction = originalMessage.replace(
-                    '💬NOTES',
-                    `💳 TRANSACTION ID: ${transactionId}\n\n💬NOTES`
-                );
-
-                const whatsappUrl = `https://api.whatsapp.com/send/?phone=918104563011&text=${messageWithTransaction}`;
+                const whatsappMessage = generateWhatsAppMessage(orderData);
+                const whatsappUrl = `https://api.whatsapp.com/send/?phone=918104563011&text=${whatsappMessage}`;
                 window.location.href = whatsappUrl;
             });
 

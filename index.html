@@ -1320,6 +1320,9 @@
         let cart = {};
         let cartCount = 0;
 
+        // Track which fields user has interacted with
+        let touchedFields = new Set();
+
         // Indian States Array
         const indianStates = [
             'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -1482,7 +1485,8 @@
             }, 1000);
 
             updateCartDisplay();
-            // Don't validate form when just adding to cart
+            // Update form validation to refresh CTA button
+            validateForm();
         }
 
         function updateCartQuantity(productKey, change) {
@@ -1502,6 +1506,8 @@
 
                 updateCartDisplay();
                 updateQuantityButtons(productKey);
+                // Update form validation to refresh CTA button
+                validateForm();
             }
         }
 
@@ -1525,7 +1531,8 @@
             updateQuantityButtons(productKey);
 
             updateCartDisplay();
-            // Don't validate form when removing from cart
+            // Update form validation to refresh CTA button
+            validateForm();
         }
 
         function updateCartDisplay() {
@@ -1625,14 +1632,21 @@
 
             Object.keys(fields).forEach(fieldId => {
                 const field = document.getElementById(fieldId);
+
+                // Mark field as touched when user interacts with it
+                field.addEventListener('focus', function() {
+                    touchedFields.add(fieldId);
+                });
+
                 // Only validate when user moves away from field (blur event)
                 field.addEventListener('blur', function() {
+                    touchedFields.add(fieldId);
                     fields[fieldId](this);
                     validateForm();
                 });
-                // Also validate on form submission
+
+                // Clear error state while typing
                 field.addEventListener('input', function() {
-                    // Only clear error state while typing, don't show new errors
                     if (this.value.trim() !== '') {
                         const formGroup = this.closest('.form-group');
                         formGroup.classList.remove('error');
@@ -1755,25 +1769,44 @@
             };
 
             let allValid = true;
+            let allFieldsFilled = true;
+
             requiredFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
-                if (!validations[fieldId](field)) {
-                    allValid = false;
+                const fieldValue = field.value.trim();
+
+                // Check if field is empty
+                if (!fieldValue) {
+                    allFieldsFilled = false;
+                }
+
+                // Only validate fields that user has interacted with
+                if (touchedFields.has(fieldId)) {
+                    if (!validations[fieldId](field)) {
+                        allValid = false;
+                    }
+                } else if (fieldValue) {
+                    // If field has value but hasn't been touched, still validate it
+                    if (!validations[fieldId](field)) {
+                        allValid = false;
+                    }
                 }
             });
 
             const hasCartItems = cartCount > 0;
             const submitBtn = document.getElementById('submitOrder');
 
-            if (allValid && hasCartItems) {
+            if (allValid && hasCartItems && allFieldsFilled) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Complete Order via WhatsApp';
             } else {
-                submitBtn.disabled = true;
+                submitBtn.disabled = false; // Enable button for scroll functionality
                 if (!hasCartItems) {
                     submitBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add items to cart first';
-                } else {
+                } else if (!allFieldsFilled) {
                     submitBtn.innerHTML = '<i class="fas fa-user"></i> Complete Contact Details';
+                } else {
+                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Fix validation errors';
                 }
             }
         }
@@ -1874,7 +1907,37 @@
 
         function setupSubmission() {
             document.getElementById('submitOrder').addEventListener('click', async function() {
-                if (this.disabled) return;
+                const hasCartItems = cartCount > 0;
+                const requiredFields = [
+                    'customerName', 'customerPhone', 'addressLine1',
+                    'addressCity', 'addressState', 'addressPincode'
+                ];
+
+                // Check if all fields are filled
+                const allFieldsFilled = requiredFields.every(fieldId => {
+                    return document.getElementById(fieldId).value.trim() !== '';
+                });
+
+                // If not ready to submit, handle scrolling and prompts
+                if (!hasCartItems) {
+                    // Scroll to products section
+                    const productsSection = document.querySelector('.products-container');
+                    if (productsSection) {
+                        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        showPrompt('Please select some products to add to your cart!');
+                    }
+                    return;
+                } else if (!allFieldsFilled) {
+                    // Scroll to contact details section
+                    const contactSection = document.querySelector('.customer-details');
+                    if (contactSection) {
+                        contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        showPrompt('Please fill in all contact details to complete your order!');
+                    }
+                    return;
+                }
+
+                // If we reach here, proceed with order submission
 
                 const loadingOverlay = document.getElementById('loadingOverlay');
                 loadingOverlay.style.display = 'flex';
@@ -1905,6 +1968,47 @@
                     alert('There was an error processing your order. Please try again or contact us directly.');
                 }
             });
+        }
+
+        function showPrompt(message) {
+            // Create prompt element if it doesn't exist
+            let promptElement = document.getElementById('userPrompt');
+            if (!promptElement) {
+                promptElement = document.createElement('div');
+                promptElement.id = 'userPrompt';
+                promptElement.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #2E5BBA;
+                    color: white;
+                    padding: 15px 25px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 15px rgba(46, 91, 186, 0.3);
+                    z-index: 10000;
+                    font-weight: 500;
+                    font-size: 14px;
+                    max-width: 90%;
+                    text-align: center;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                document.body.appendChild(promptElement);
+            }
+
+            promptElement.textContent = message;
+            promptElement.style.opacity = '1';
+
+            // Auto-hide after 4 seconds
+            setTimeout(() => {
+                promptElement.style.opacity = '0';
+                setTimeout(() => {
+                    if (promptElement.parentNode) {
+                        promptElement.parentNode.removeChild(promptElement);
+                    }
+                }, 300);
+            }, 4000);
         }
 
         function resetForm() {
@@ -1939,6 +2043,9 @@
             document.querySelectorAll('.form-group').forEach(group => {
                 group.classList.remove('error', 'valid');
             });
+
+            // Clear touched fields
+            touchedFields.clear();
 
             updateCartDisplay();
             validateForm();

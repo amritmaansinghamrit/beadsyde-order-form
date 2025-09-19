@@ -1972,10 +1972,8 @@ FINAL TOTAL: Rs.${orderData.total} ✅
                     // Small delay for better UX
                     setTimeout(() => {
                         loadingOverlay.style.display = 'none';
-                        window.open(whatsappUrl, '_blank');
-
-                        // Reset form after successful submission
-                        setTimeout(resetForm, 2000);
+                        // Redirect to WhatsApp in same tab instead of popup
+                        window.location.href = whatsappUrl;
                     }, 1500);
 
                 } catch (error) {

@@ -902,6 +902,66 @@
             color: var(--neutral-beige);
             text-decoration: underline;
         }
+
+        .cart-quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .cart-qty-btn {
+            width: 25px;
+            height: 25px;
+            border: 1px solid var(--border-light);
+            background: var(--pure-white);
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-qty-btn:hover {
+            background: var(--neutral-beige);
+        }
+
+        .cart-qty-display {
+            min-width: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: var(--error-red);
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .remove-item-btn:hover {
+            text-decoration: underline;
+        }
+
+        .item-price-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .shipping-prompt {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            border: 1px solid #10B981;
+            border-radius: var(--border-radius);
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            color: #065f46;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -1215,11 +1275,18 @@
         let cart = {};
         let cartCount = 0;
 
-        // Generate temporary order number (server will assign final number)
+        // Generate unique order number using timestamp + random
         function generateOrderNumber() {
-            // Temporary ID for client-side display, server will replace with sequential number
-            const timestamp = Date.now().toString().slice(-6);
-            return `IN${timestamp}`;
+            // Create unique order ID that works without server setup
+            const now = new Date();
+            const year = now.getFullYear().toString().slice(-2);
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
+
+            return `IN${year}${month}${day}${hour}${minute}${random}`;
         }
 
         // Initialize form on page load
@@ -1332,6 +1399,26 @@
             // Don't validate form when just adding to cart
         }
 
+        function updateCartQuantity(productKey, change) {
+            if (cart[productKey]) {
+                cart[productKey].quantity += change;
+
+                if (cart[productKey].quantity <= 0) {
+                    delete cart[productKey];
+                    cartCount = Object.keys(cart).length;
+                } else {
+                    // Update the main quantity display as well
+                    const qtyDisplay = document.querySelector(`.qty-display[data-product="${productKey}"]`);
+                    if (qtyDisplay) {
+                        qtyDisplay.value = cart[productKey].quantity;
+                    }
+                }
+
+                updateCartDisplay();
+                updateQuantityButtons(productKey);
+            }
+        }
+
         function removeFromCart(productKey) {
             delete cart[productKey];
             cartCount = Object.keys(cart).length;
@@ -1364,6 +1451,12 @@
 
             cartBadge.textContent = cartCount;
 
+            // Remove any existing shipping prompts
+            const existingPrompt = document.querySelector('.shipping-prompt');
+            if (existingPrompt) {
+                existingPrompt.remove();
+            }
+
             if (cartCount === 0) {
                 emptyCart.style.display = 'block';
                 summaryItems.style.display = 'none';
@@ -1390,10 +1483,17 @@
                             <img src="${item.image}" alt="${item.name}" class="item-image">
                             <div class="item-info">
                                 <h4>${item.name}</h4>
-                                <p>Quantity: ${item.quantity}</p>
+                                <div class="cart-quantity-controls">
+                                    <button class="cart-qty-btn" onclick="updateCartQuantity('${productKey}', -1)">-</button>
+                                    <span class="cart-qty-display">${item.quantity}</span>
+                                    <button class="cart-qty-btn" onclick="updateCartQuantity('${productKey}', 1)">+</button>
+                                </div>
                             </div>
                         </div>
-                        <span class="item-price">₹${itemTotal}</span>
+                        <div class="item-price-section">
+                            <span class="item-price">₹${itemTotal}</span>
+                            <button class="remove-item-btn" onclick="removeFromCart('${productKey}')">Remove</button>
+                        </div>
                     `;
                     summaryItems.appendChild(summaryItem);
                 });
@@ -1405,10 +1505,22 @@
 
                 const total = itemsTotal + shippingCost;
 
+                // Add shipping prompt if needed
+                let shippingPrompt = '';
+                if (itemsTotal < 999 && itemsTotal > 0) {
+                    const needed = 999 - itemsTotal;
+                    shippingPrompt = `<div class="shipping-prompt">Add ₹${needed} more for FREE shipping!</div>`;
+                }
+
                 // Update shipping display
                 const shippingElement = document.querySelector('.total-row span:last-child');
                 if (shippingElement) {
                     shippingElement.textContent = shippingCost === 0 ? 'FREE' : `₹${shippingCost}`;
+                }
+
+                // Add shipping prompt to summary
+                if (shippingPrompt) {
+                    summaryItems.insertAdjacentHTML('afterend', shippingPrompt);
                 }
 
                 totalAmountElement.textContent = `₹${total}`;

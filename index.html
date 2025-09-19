@@ -1291,6 +1291,7 @@
                         <h3>🎯 Pay via UPI</h3>
                         <p><strong>Pay to:</strong> khemkakshama64-1@oksbi</p>
                         <p><strong>Name:</strong> Beadsyde</p>
+                        <p><strong>Merchant Code:</strong> BD001</p>
                         <p><strong>Transaction ID:</strong> <span id="transactionId"></span></p>
 
                         <!-- Mobile UPI Button -->
@@ -2294,13 +2295,45 @@ FINAL TOTAL: Rs.${orderData.total} ✅
             return `BD${timestamp.slice(-6)}${randomString}`;
         }
 
+        function generateUPICustomMessage(orderData) {
+            let message = `BEADSYDE ORDER\n\n`;
+            message += `Customer: ${orderData.customer.name}\n`;
+            message += `Phone: ${orderData.customer.phone}\n`;
+            message += `Address: ${orderData.customer.fullAddress}\n\n`;
+
+            message += `Items:\n`;
+            orderData.products.forEach((product, index) => {
+                message += `${index + 1}. ${product.name} (${product.variant}) x${product.quantity} = Rs.${product.total}\n`;
+            });
+
+            if (orderData.customer.specialNotes) {
+                message += `\nNotes: ${orderData.customer.specialNotes}\n`;
+            }
+
+            message += `\nTotal: Rs.${orderData.total}`;
+            if (orderData.shipping > 0) {
+                message += ` (Items: Rs.${orderData.total - orderData.shipping} + Shipping: Rs.${orderData.shipping})`;
+            }
+
+            return message;
+        }
+
         function generateUPILink(orderData, transactionId) {
             const vpa = 'khemkakshama64-1@oksbi';
             const payeeName = 'Beadsyde';
+            const merchantCode = 'BD001'; // Beadsyde merchant code
             const amount = orderData.total;
+            const currency = 'INR';
 
-            // UPI deep link format (simplified - no callback URL as it causes issues)
-            const upiUrl = `upi://pay?pa=${vpa}&pn=${encodeURIComponent(payeeName)}&am=${amount}&cu=INR&tid=${transactionId}&tr=${transactionId}`;
+            // Generate WhatsApp callback URL
+            const whatsappMessage = generateWhatsAppMessage(orderData);
+            const whatsappUrl = `https://api.whatsapp.com/send/?phone=918104563011&text=${whatsappMessage}`;
+
+            // Generate custom message with order details
+            const customMessage = generateUPICustomMessage(orderData);
+
+            // Complete UPI deep link format
+            const upiUrl = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&mc=${encodeURIComponent(merchantCode)}&tid=${encodeURIComponent(transactionId)}&tr=${encodeURIComponent(transactionId)}&am=${amount}&cu=${currency}&url=${encodeURIComponent(whatsappUrl)}&msg=${encodeURIComponent(customMessage)}`;
 
             return upiUrl;
         }

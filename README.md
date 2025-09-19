@@ -72,7 +72,7 @@ Each order creates a new row with:
 
 ## 📱 **WhatsApp Integration**
 
-Orders are sent to: **9557705317**
+Orders are sent to: **918104563011**
 
 Message format:
 ```

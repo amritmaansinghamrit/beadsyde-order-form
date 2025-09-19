@@ -137,7 +137,7 @@ Your orders will be logged with these columns:
 ### Update WhatsApp Number
 In your HTML, find and change:
 ```javascript
-const whatsappNumber = '9557705317';
+const whatsappNumber = '918104563011';
 ```
 
 ### Modify Product Prices
@@ -159,8 +159,8 @@ let total = 100; // Shipping cost
 ### Common Issues:
 
 **WhatsApp Not Opening?**
-- Check phone number format: `9557705317` (no +91)
-- Ensure URL is: `https://wa.me/9557705317`
+- Check phone number format: `918104563011` (includes country code)
+- Ensure URL is: `https://wa.me/918104563011`
 
 **Google Sheets Not Working?**
 1. Check Apps Script permissions

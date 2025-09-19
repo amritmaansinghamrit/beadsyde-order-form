@@ -1868,10 +1868,11 @@
                 message += `${index + 1}.⁠ ⁠${product.name} (${product.variant}) x${product.quantity} = Rs.${product.total}\n`;
             });
 
-            message += `\n💬NOTES\n`;
+            message += `\n💬NOTES`;
             if (orderData.customer.specialNotes) {
-                message += `${orderData.customer.specialNotes}\n`;
+                message += `: ${orderData.customer.specialNotes}`;
             }
+            message += `\n`;
 
             message += `\n✨TOTAL:\n`;
             message += `Items: Rs.${orderData.total - orderData.shipping}\n`;

@@ -10,8 +10,7 @@ function doPost(e) {
     const spreadsheet = getOrCreateOrderSheet();
     const sheet = spreadsheet.getActiveSheet();
 
-    // Generate proper order number with counter
-    orderData.orderNumber = generateOrderNumber(sheet);
+    // No order number needed anymore
 
     // Log the order
     logOrderToSheet(sheet, orderData);
@@ -20,8 +19,7 @@ function doPost(e) {
     return ContentService
       .createTextOutput(JSON.stringify({
         status: 'success',
-        message: 'Order logged successfully',
-        orderNumber: orderData.orderNumber
+        message: 'Order logged successfully'
       }))
       .setMimeType(ContentService.MimeType.JSON);
 
@@ -54,7 +52,6 @@ function getOrCreateOrderSheet() {
     // Set up headers
     const headers = [
       'Order Date',
-      'Order Number',
       'Customer Name',
       'Phone Number',
       'Full Address',
@@ -111,7 +108,6 @@ function logOrderToSheet(sheet, orderData) {
   // Prepare row data
   const rowData = [
     orderData.orderDate,                           // Order Date
-    orderData.orderNumber,                         // Order Number
     orderData.customer.name,                       // Customer Name
     orderData.customer.phone,                      // Phone Number
     orderData.customer.fullAddress,                // Full Address
@@ -145,13 +141,13 @@ function logOrderToSheet(sheet, orderData) {
   // Highlight new orders in light blue
   sheet.getRange(nextRow, 12).setBackground('#e3f2fd'); // Order Status column
 
-  console.log(`✅ Order ${orderData.orderNumber} logged successfully for ${orderData.customer.name}`);
+  console.log(`✅ Order logged successfully for ${orderData.customer.name} at ${orderData.orderDate}`);
 }
 
 // Test function - you can run this to test the setup
 function testOrderLogging() {
   const testOrder = {
-    orderNumber: 'BD123456',
+    // No order number in test data
     orderDate: new Date().toLocaleString('en-IN'),
     customer: {
       name: 'Test Customer',

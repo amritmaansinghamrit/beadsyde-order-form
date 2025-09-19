@@ -891,16 +891,20 @@
             margin: 0 auto;
         }
 
-        .instagram-link {
+        .footer-link {
             color: #fff;
             text-decoration: none;
             font-weight: 500;
             transition: var(--transition);
         }
 
-        .instagram-link:hover {
+        .footer-link:hover {
             color: var(--neutral-beige);
             text-decoration: underline;
+        }
+
+        .footer-content p {
+            margin: 5px 0;
         }
 
         .cart-quantity-controls {
@@ -1265,7 +1269,8 @@
         <!-- Footer -->
         <div class="footer">
             <div class="footer-content">
-                <p><i class="fab fa-instagram"></i> Follow us on Instagram: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="instagram-link">@beadsyde</a></p>
+                <p><i class="fab fa-instagram"></i> Follow us on Instagram: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="footer-link">@beadsyde</a></p>
+                <p><i class="fab fa-whatsapp"></i> Join our WhatsApp Community: <a href="https://chat.whatsapp.com/BTUOnwDzoLgBfCnrjNcL6j" target="_blank" class="footer-link">Community Chat</a></p>
             </div>
         </div>
     </div>
@@ -1275,19 +1280,7 @@
         let cart = {};
         let cartCount = 0;
 
-        // Generate unique order number using timestamp + random
-        function generateOrderNumber() {
-            // Create unique order ID that works without server setup
-            const now = new Date();
-            const year = now.getFullYear().toString().slice(-2);
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hour = String(now.getHours()).padStart(2, '0');
-            const minute = String(now.getMinutes()).padStart(2, '0');
-            const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-
-            return `IN${year}${month}${day}${hour}${minute}${random}`;
-        }
+        // No order ID generation needed
 
         // Initialize form on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -1727,36 +1720,35 @@
                 shipping: shippingCost,
                 total: total,
                 orderDate: new Date().toLocaleString('en-IN'),
-                orderNumber: generateOrderNumber()
+                orderDate: new Date().toLocaleString('en-IN')
             };
         }
 
         function generateWhatsAppMessage(orderData) {
-            let message = `NEW ORDER - BEADSYDE\n\n`;
+            let message = `💍 *NEW ORDER - BEADSYDE* 💍\n\n`;
 
-            message += `ORDER: ${orderData.orderNumber}\n`;
-            message += `DATE: ${orderData.orderDate}\n\n`;
+            message += `📅 *Date:* ${orderData.orderDate}\n\n`;
 
-            message += `CUSTOMER:\n`;
-            message += `Name: ${orderData.customer.name}\n`;
-            message += `Phone: ${orderData.customer.phone}\n`;
-            message += `Address: ${orderData.customer.fullAddress}\n\n`;
+            message += `👤 *CUSTOMER:*\n`;
+            message += `📝 Name: ${orderData.customer.name}\n`;
+            message += `📱 Phone: ${orderData.customer.phone}\n`;
+            message += `🏠 Address: ${orderData.customer.fullAddress}\n\n`;
 
-            message += `ITEMS:\n`;
+            message += `🛍️ *ITEMS ORDERED:*\n`;
             orderData.products.forEach((product, index) => {
-                message += `${index + 1}. ${product.name} (${product.variant}) x${product.quantity} = Rs.${product.total}\n`;
+                message += `${index + 1}. ${product.name} (${product.variant}) x${product.quantity} = ₹${product.total}\n`;
             });
 
             if (orderData.customer.specialNotes) {
-                message += `\nNOTES: ${orderData.customer.specialNotes}\n`;
+                message += `\n💬 *Special Message:* ${orderData.customer.specialNotes}\n`;
             }
 
-            message += `\nTOTAL:\n`;
-            message += `Items: Rs.${orderData.total - orderData.shipping}\n`;
-            message += `Shipping: Rs.${orderData.shipping}\n`;
-            message += `FINAL TOTAL: Rs.${orderData.total}\n\n`;
+            message += `\n💰 *TOTAL:*\n`;
+            message += `💵 Items: ₹${orderData.total - orderData.shipping}\n`;
+            message += `🚚 Shipping: ${orderData.shipping === 0 ? 'FREE' : '₹' + orderData.shipping}\n`;
+            message += `💳 *FINAL TOTAL: ₹${orderData.total}*\n\n`;
 
-            message += `Delivery: 4-6 days | Online Payment Only | India Only`;
+            message += `📦 Delivery: 4-6 days | 💳 Online Payment Only | 🇮🇳 India Only`;
 
             return encodeURIComponent(message);
         }

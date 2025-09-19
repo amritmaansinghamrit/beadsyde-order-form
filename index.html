@@ -54,7 +54,7 @@
         /* Modern Header */
         .header {
             background: linear-gradient(135deg, var(--pure-white) 0%, #f8faff 100%);
-            padding: 25px 40px 20px;
+            padding: 19px 40px 15px;
             text-align: center;
             border-bottom: 1px solid var(--border-light);
             position: relative;
@@ -904,7 +904,7 @@
         }
 
         .footer-content p {
-            margin: 5px 0;
+            margin: 0;
         }
 
         .cart-quantity-controls {
@@ -1269,8 +1269,7 @@
         <!-- Footer -->
         <div class="footer">
             <div class="footer-content">
-                <p><i class="fab fa-instagram"></i> Follow us on Instagram: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="footer-link">@beadsyde</a></p>
-                <p><i class="fab fa-whatsapp"></i> Join our WhatsApp Community: <a href="https://chat.whatsapp.com/BTUOnwDzoLgBfCnrjNcL6j" target="_blank" class="footer-link">Community Chat</a></p>
+                <p><i class="fab fa-instagram"></i> Follow us: <a href="https://www.instagram.com/beadsyde/" target="_blank" class="footer-link">@beadsyde</a> | <i class="fab fa-whatsapp"></i> Join our <a href="https://chat.whatsapp.com/BTUOnwDzoLgBfCnrjNcL6j" target="_blank" class="footer-link">WhatsApp Community</a></p>
             </div>
         </div>
     </div>
@@ -1725,30 +1724,31 @@
         }
 
         function generateWhatsAppMessage(orderData) {
-            let message = `💍 *NEW ORDER - BEADSYDE* 💍\n\n`;
+            let message = `*NEW ORDER - BEADSYDE*\n\n`;
 
-            message += `📅 *Date:* ${orderData.orderDate}\n\n`;
+            message += `*Date:* ${orderData.orderDate}\n\n`;
 
-            message += `👤 *CUSTOMER:*\n`;
-            message += `📝 Name: ${orderData.customer.name}\n`;
-            message += `📱 Phone: ${orderData.customer.phone}\n`;
-            message += `🏠 Address: ${orderData.customer.fullAddress}\n\n`;
+            message += `*CUSTOMER:*\n`;
+            message += `Name: ${orderData.customer.name}\n`;
+            message += `Phone: ${orderData.customer.phone}\n`;
+            message += `Address: ${orderData.customer.fullAddress}\n\n`;
 
-            message += `🛍️ *ITEMS ORDERED:*\n`;
+            message += `*ITEMS ORDERED:*\n`;
             orderData.products.forEach((product, index) => {
-                message += `${index + 1}. ${product.name} (${product.variant}) x${product.quantity} = ₹${product.total}\n`;
+                message += `${index + 1}. ${product.name} (${product.variant}) x${product.quantity} = Rs.${product.total}\n`;
             });
 
             if (orderData.customer.specialNotes) {
-                message += `\n💬 *Special Message:* ${orderData.customer.specialNotes}\n`;
+                message += `\n*Special Message:* ${orderData.customer.specialNotes}\n`;
             }
 
-            message += `\n💰 *TOTAL:*\n`;
-            message += `💵 Items: ₹${orderData.total - orderData.shipping}\n`;
-            message += `🚚 Shipping: ${orderData.shipping === 0 ? 'FREE' : '₹' + orderData.shipping}\n`;
-            message += `💳 *FINAL TOTAL: ₹${orderData.total}*\n\n`;
+            message += `\n*TOTAL:*\n`;
+            message += `Items: Rs.${orderData.total - orderData.shipping}\n`;
+            message += `Shipping: ${orderData.shipping === 0 ? 'FREE' : 'Rs.' + orderData.shipping}\n`;
+            message += `*FINAL TOTAL: Rs.${orderData.total}*\n\n`;
 
-            message += `📦 Delivery: 4-6 days | 💳 Online Payment Only | 🇮🇳 India Only`;
+            message += `Delivery: 4-6 days | Online Payment Only | India Only\n\n`;
+            message += `Thank you for shopping with us 🩵`;
 
             return encodeURIComponent(message);
         }

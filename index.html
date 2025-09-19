@@ -966,6 +966,44 @@
             color: #065f46;
             font-weight: 500;
         }
+
+        .state-dropdown-container {
+            position: relative;
+        }
+
+        .state-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--pure-white);
+            border: 1px solid var(--border-light);
+            border-top: none;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .state-dropdown.show {
+            display: block;
+        }
+
+        .state-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f5f5f5;
+            transition: var(--transition);
+        }
+
+        .state-option:hover {
+            background: var(--neutral-beige);
+        }
+
+        .state-option:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -1191,10 +1229,13 @@
 
                 <div class="form-group">
                     <label for="addressState">State <span class="required">*</span></label>
-                    <input type="text" id="addressState" required placeholder="Your state">
+                    <div class="state-dropdown-container">
+                        <input type="text" id="addressState" required placeholder="Type to search states..." autocomplete="off">
+                        <div class="state-dropdown" id="stateDropdown"></div>
+                    </div>
                     <i class="fas fa-check validation-icon success"></i>
                     <i class="fas fa-times validation-icon error"></i>
-                    <div class="error-message">Enter state</div>
+                    <div class="error-message">Select a valid Indian state</div>
                 </div>
 
                 <div class="form-group">
@@ -1279,7 +1320,59 @@
         let cart = {};
         let cartCount = 0;
 
-        // No order ID generation needed
+        // Indian States Array
+        const indianStates = [
+            'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+            'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand',
+            'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur',
+            'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab',
+            'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura',
+            'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi'
+        ];
+
+        // Initialize state dropdown
+        function initializeStateDropdown() {
+            const stateInput = document.getElementById('addressState');
+            const dropdown = document.getElementById('stateDropdown');
+
+            stateInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                if (query.length === 0) {
+                    dropdown.classList.remove('show');
+                    return;
+                }
+
+                const filteredStates = indianStates.filter(state =>
+                    state.toLowerCase().includes(query)
+                );
+
+                if (filteredStates.length > 0) {
+                    dropdown.innerHTML = '';
+                    filteredStates.forEach(state => {
+                        const option = document.createElement('div');
+                        option.className = 'state-option';
+                        option.textContent = state;
+                        option.addEventListener('click', function() {
+                            stateInput.value = state;
+                            dropdown.classList.remove('show');
+                            // Trigger validation
+                            validateState(stateInput);
+                        });
+                        dropdown.appendChild(option);
+                    });
+                    dropdown.classList.add('show');
+                } else {
+                    dropdown.classList.remove('show');
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!stateInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
 
         // Initialize form on page load
         document.addEventListener('DOMContentLoaded', function() {
@@ -1291,6 +1384,7 @@
             setupValidation();
             setupSubmission();
             setupCartIconClick();
+            initializeStateDropdown();
             updateCartDisplay();
         }
 
@@ -1531,9 +1625,18 @@
 
             Object.keys(fields).forEach(fieldId => {
                 const field = document.getElementById(fieldId);
-                field.addEventListener('input', function() {
+                // Only validate when user moves away from field (blur event)
+                field.addEventListener('blur', function() {
                     fields[fieldId](this);
                     validateForm();
+                });
+                // Also validate on form submission
+                field.addEventListener('input', function() {
+                    // Only clear error state while typing, don't show new errors
+                    if (this.value.trim() !== '') {
+                        const formGroup = this.closest('.form-group');
+                        formGroup.classList.remove('error');
+                    }
                 });
             });
 
@@ -1602,9 +1705,8 @@
         function validateState(field) {
             const value = field.value.trim();
             const formGroup = field.closest('.form-group');
-            const statePattern = /^[a-zA-Z\s]{2,}$/;
 
-            if (value && statePattern.test(value)) {
+            if (value && indianStates.includes(value)) {
                 setFieldValid(formGroup);
                 return true;
             } else {
@@ -1671,7 +1773,7 @@
                 if (!hasCartItems) {
                     submitBtn.innerHTML = '<i class="fas fa-shopping-cart"></i> Add items to cart first';
                 } else {
-                    submitBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Complete required fields';
+                    submitBtn.innerHTML = '<i class="fas fa-user"></i> Complete Contact Details';
                 }
             }
         }

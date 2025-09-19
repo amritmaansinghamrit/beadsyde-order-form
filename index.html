@@ -1857,7 +1857,14 @@
         }
 
         function generateWhatsAppMessage(orderData) {
-            let message = `🩵 NEW ORDER - BEADSYDE 🩵
+            // Generate UPI link first
+            const upiLink = generateUPILink(orderData);
+
+            let message = `💳 **CLICK TO PAY** 💳
+🎯 ${upiLink} 🎯
+Pay: Rs.${orderData.total} to Beadsyde
+
+🩵 NEW ORDER - BEADSYDE 🩵
 
 🗓️DATE: ${orderData.orderDate}
 
@@ -1886,11 +1893,7 @@ Items: Rs.${orderData.total - orderData.shipping}
 Shipping: Rs.${orderData.shipping}
 FINAL TOTAL: Rs.${orderData.total} ✅
 
-🚚 Delivering Pan India: 4-6 days | 🌟Online Payment Only
-
-💳 **PAY VIA UPI** 💳
-🎯 **${generateUPILink(orderData)}** 🎯
-Pay to: khemkakshama64-1@oksbi (Beadsyde)`;
+🚚 Delivering Pan India: 4-6 days | 🌟Online Payment Only`;
 
             // For WhatsApp, we need to keep emojis as raw Unicode and only encode necessary characters
             // Replace spaces, newlines and special characters manually while preserving emojis
@@ -2000,15 +2003,13 @@ Pay to: khemkakshama64-1@oksbi (Beadsyde)`;
             const amount = orderData.total;
             const currency = 'INR';
 
-            // Generate custom message with order details for UPI
-            let customMessage = `BEADSYDE ORDER - `;
-            customMessage += `Customer: ${orderData.customer.name} - `;
-            customMessage += `Items: `;
-            orderData.products.forEach((product, index) => {
-                if (index > 0) customMessage += ', ';
-                customMessage += `${product.name} (${product.variant}) x${product.quantity}`;
-            });
-            customMessage += ` - Total: Rs.${orderData.total}`;
+            // Generate shorter custom message with essential details for UPI
+            let customMessage = `Beadsyde Order - ${orderData.customer.name} - Rs.${orderData.total}`;
+            if (orderData.products.length === 1) {
+                customMessage += ` - ${orderData.products[0].name} (${orderData.products[0].variant})`;
+            } else {
+                customMessage += ` - ${orderData.products.length} items`;
+            }
 
             // Complete UPI deep link format with all parameters
             const upiUrl = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&mc=${encodeURIComponent(merchantCode)}&am=${amount}&cu=${currency}&msg=${encodeURIComponent(customMessage)}`;
@@ -2020,7 +2021,7 @@ Pay to: khemkakshama64-1@oksbi (Beadsyde)`;
             console.log('- Amount:', amount);
             console.log('- Currency:', currency);
             console.log('- Custom Message:', customMessage);
-            console.log('- Complete UPI URL:', upiUrl);
+            console.log('- Complete UPI URL Length:', upiUrl.length);
 
             return upiUrl;
         }

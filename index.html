@@ -691,6 +691,17 @@
             box-shadow: none;
         }
 
+        .payment-info-text {
+            text-align: center;
+            margin: 12px 0 0 0;
+            font-size: 0.9em;
+            color: var(--text-medium);
+            background: #f0f4ff;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-blue);
+        }
+
         /* Delivery Info */
         .delivery-info {
             background: linear-gradient(135deg, #f8faff, #f0f4ff);
@@ -1288,6 +1299,7 @@
                 <button class="submit-btn" id="submitOrder" disabled>
                     <i class="fab fa-whatsapp"></i> Complete Order via WhatsApp
                 </button>
+                <p class="payment-info-text">📱 <strong>How it works:</strong> When you click the button, WhatsApp will open with an auto-filled message containing your order details and payment link. Simply send that message and click the payment link to complete your purchase. Share payment screenshot to confirm!</p>
             </div>
 
             <!-- Delivery Info -->
@@ -1803,7 +1815,7 @@
             submitBtn.disabled = false;
 
             if (allValid && hasCartItems && allFieldsFilled) {
-                submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Place Order via WhatsApp';
+                submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Place Order & Get Payment Link';
             } else {
                 submitBtn.innerHTML = '<i class="fab fa-whatsapp"></i> Place Order';
             }
@@ -1860,40 +1872,37 @@
             // Generate UPI link first
             const upiLink = generateUPILink(orderData);
 
-            let message = `💳 **CLICK TO PAY** 💳
-🎯 ${upiLink} 🎯
-Pay: Rs.${orderData.total} to Beadsyde
+            let message = `🩵 NEW ORDER - BEADSYDE 🩵
 
-🩵 NEW ORDER - BEADSYDE 🩵
+🗓️ ${orderData.orderDate}
 
-🗓️DATE: ${orderData.orderDate}
-
-✨CUSTOMER
 Name: ${orderData.customer.name}
 Phone: ${orderData.customer.phone}
 Address: ${orderData.customer.fullAddress}
 
-✨ITEMS
 `;
             orderData.products.forEach((product, index) => {
                 message += `${index + 1}.⁠ ⁠${product.name} (${product.variant}) x${product.quantity} = Rs.${product.total}
+
 `;
             });
 
-            message += `
-💬NOTES`;
+            message += `Items: Rs.${orderData.total - orderData.shipping}
+Shipping: Rs.${orderData.shipping}
+FINAL TOTAL: Rs.${orderData.total} ✅
+
+💬NOTES:`;
             if (orderData.customer.specialNotes) {
-                message += `: ${orderData.customer.specialNotes}`;
+                message += ` ${orderData.customer.specialNotes}`;
             }
 
             message += `
 
-✨TOTAL:
-Items: Rs.${orderData.total - orderData.shipping}
-Shipping: Rs.${orderData.shipping}
-FINAL TOTAL: Rs.${orderData.total} ✅
+🚚 Delivering Pan India in 4-6 working days
 
-🚚 Delivering Pan India: 4-6 days | 🌟Online Payment Only`;
+💳 👇 Pay here and share a screenshot to confirm your order 👇
+${upiLink}
+👆 Click the link above to pay 👆`;
 
             // For WhatsApp, we need to keep emojis as raw Unicode and only encode necessary characters
             // Replace spaces, newlines and special characters manually while preserving emojis
@@ -2003,24 +2012,24 @@ FINAL TOTAL: Rs.${orderData.total} ✅
             const amount = orderData.total;
             const currency = 'INR';
 
-            // Generate shorter custom message with essential details for UPI
-            let customMessage = `Beadsyde Order - ${orderData.customer.name} - Rs.${orderData.total}`;
+            // Generate transaction note with essential details
+            let transactionNote = `Beadsyde Order - ${orderData.customer.name} - Rs.${orderData.total}`;
             if (orderData.products.length === 1) {
-                customMessage += ` - ${orderData.products[0].name} (${orderData.products[0].variant})`;
+                transactionNote += ` - ${orderData.products[0].name} (${orderData.products[0].variant})`;
             } else {
-                customMessage += ` - ${orderData.products.length} items`;
+                transactionNote += ` - ${orderData.products.length} items`;
             }
 
-            // Complete UPI deep link format with all parameters
-            const upiUrl = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&mc=${encodeURIComponent(merchantCode)}&am=${amount}&cu=${currency}&msg=${encodeURIComponent(customMessage)}`;
+            // Complete UPI deep link format with correct parameters
+            const upiUrl = `upi://pay?pa=${encodeURIComponent(vpa)}&pn=${encodeURIComponent(payeeName)}&mc=${encodeURIComponent(merchantCode)}&am=${amount}&cu=${currency}&tn=${encodeURIComponent(transactionNote)}`;
 
             console.log('Generated UPI Link with all parameters:');
-            console.log('- VPA:', vpa);
-            console.log('- Payee Name:', payeeName);
-            console.log('- Merchant Code:', merchantCode);
-            console.log('- Amount:', amount);
-            console.log('- Currency:', currency);
-            console.log('- Custom Message:', customMessage);
+            console.log('- VPA (pa):', vpa);
+            console.log('- Payee Name (pn):', payeeName);
+            console.log('- Merchant Code (mc):', merchantCode);
+            console.log('- Amount (am):', amount);
+            console.log('- Currency (cu):', currency);
+            console.log('- Transaction Note (tn):', transactionNote);
             console.log('- Complete UPI URL Length:', upiUrl.length);
 
             return upiUrl;

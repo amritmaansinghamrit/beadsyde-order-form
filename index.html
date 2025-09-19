@@ -1905,8 +1905,11 @@ ${upiLink}
 👆 Click the link above to pay 👆`;
 
             // For WhatsApp, we need to keep emojis as raw Unicode and only encode necessary characters
-            // Replace spaces, newlines and special characters manually while preserving emojis
-            return message
+            // Protect UPI link from encoding by temporarily replacing it
+            const upiPlaceholder = '###UPI_LINK_PLACEHOLDER###';
+            const messageWithPlaceholder = message.replace(upiLink, upiPlaceholder);
+
+            const encodedMessage = messageWithPlaceholder
                 .replace(/ /g, '%20')
                 .replace(/\n/g, '%0A')
                 .replace(/:/g, '%3A')
@@ -1914,6 +1917,17 @@ ${upiLink}
                 .replace(/\(/g, '%28')
                 .replace(/\)/g, '%29')
                 .replace(/-/g, '%2D');
+
+            // Restore the UPI link without encoding it
+            const finalMessage = encodedMessage.replace(upiPlaceholder, upiLink);
+
+            console.log('=== WhatsApp Message Debugging ===');
+            console.log('Original UPI Link:', upiLink);
+            console.log('UPI Link Length:', upiLink.length);
+            console.log('Message contains UPI link:', finalMessage.includes('upi://pay?pa='));
+            console.log('Full message length:', finalMessage.length);
+
+            return finalMessage;
         }
 
         async function logToGoogleSheets(orderData) {

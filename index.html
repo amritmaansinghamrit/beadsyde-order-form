@@ -1017,6 +1017,30 @@
         .state-option:last-child {
             border-bottom: none;
         }
+
+        /* Character counter styles */
+        .character-counter {
+            text-align: right;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .character-counter.warning {
+            color: #f59e0b;
+        }
+
+        .character-counter.limit {
+            color: var(--error-red);
+        }
+
+        .subtitle {
+            font-size: 0.85em;
+            color: var(--text-light);
+            font-weight: 400;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -1263,8 +1287,11 @@
 
             <div class="form-row full-width">
                 <div class="form-group">
-                    <label for="specialNotes">Special Message For Your Beloved</label>
-                    <textarea id="specialNotes" rows="3" placeholder="Gift wrapping, delivery notes, etc."></textarea>
+                    <label for="specialNotes">💕 A Love Note From Your Heart <span class="subtitle">(Handwritten by Beadsyde with your order)</span></label>
+                    <textarea id="specialNotes" rows="3" maxlength="100" placeholder="Write your heartfelt message... we'll handprint it beautifully for your beloved ✨"></textarea>
+                    <div class="character-counter">
+                        <span id="charCount">0</span>/100 characters
+                    </div>
                 </div>
             </div>
         </div>
@@ -1392,6 +1419,38 @@
             });
         }
 
+        // Character counter functionality
+        function setupCharacterCounter() {
+            const specialNotesTextarea = document.getElementById('specialNotes');
+            const charCountElement = document.getElementById('charCount');
+            const counterElement = document.querySelector('.character-counter');
+
+            if (specialNotesTextarea && charCountElement) {
+                function updateCharacterCount() {
+                    const currentLength = specialNotesTextarea.value.length;
+                    const maxLength = 100;
+
+                    charCountElement.textContent = currentLength;
+
+                    // Remove existing classes
+                    counterElement.classList.remove('warning', 'limit');
+
+                    // Add appropriate class based on character count
+                    if (currentLength >= maxLength) {
+                        counterElement.classList.add('limit');
+                    } else if (currentLength >= 80) {
+                        counterElement.classList.add('warning');
+                    }
+                }
+
+                // Update count on input
+                specialNotesTextarea.addEventListener('input', updateCharacterCount);
+
+                // Initialize counter
+                updateCharacterCount();
+            }
+        }
+
         // Initialize form on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeForm();
@@ -1403,6 +1462,7 @@
             setupSubmission();
             setupCartIconClick();
             initializeStateDropdown();
+            setupCharacterCounter();
             updateCartDisplay();
         }
 

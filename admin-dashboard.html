@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beadsyde Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Firebase for Real-time Database -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+        // Firebase configuration - Your actual config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAruBAoy7ND1n6TyPGu0wlfZYc1czWRcfA",
+            authDomain: "beadsyde-rashi.firebaseapp.com",
+            databaseURL: "https://beadsyde-rashi-default-rtdb.firebaseio.com",
+            projectId: "beadsyde-rashi",
+            storageBucket: "beadsyde-rashi.firebasestorage.app",
+            messagingSenderId: "577212292475",
+            appId: "1:577212292475:web:eb53d288cb99d6937b31de",
+            measurementId: "G-ZEEWPYS2LD"
+        };
+
+        // Initialize Firebase
+        let app, database;
+        try {
+            app = initializeApp(firebaseConfig);
+            database = getDatabase(app);
+            window.firebaseDB = database;
+            console.log('🔥 Admin Firebase initialized successfully');
+
+            // Set up real-time listeners
+            window.setupFirebaseListeners = () => {
+                const ordersRef = ref(database, 'orders');
+                const eventsRef = ref(database, 'analytics_events');
+                const whatsappRef = ref(database, 'whatsapp_interactions');
+
+                // Listen for new orders
+                onValue(ordersRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        window.firebaseOrders = Object.values(snapshot.val());
+                        console.log('📦 Firebase orders updated:', window.firebaseOrders.length);
+                        if (window.dashboard) {
+                            window.dashboard.refreshData();
+                        }
+                    }
+                });
+
+                // Listen for analytics events
+                onValue(eventsRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        window.firebaseEvents = Object.values(snapshot.val());
+                        console.log('📊 Firebase events updated:', window.firebaseEvents.length);
+                        if (window.dashboard) {
+                            window.dashboard.refreshData();
+                        }
+                    }
+                });
+
+                // Listen for WhatsApp interactions
+                onValue(whatsappRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        window.firebaseWhatsApp = Object.values(snapshot.val());
+                        console.log('💬 Firebase WhatsApp interactions updated:', window.firebaseWhatsApp.length);
+                        if (window.dashboard) {
+                            window.dashboard.refreshData();
+                        }
+                    }
+                });
+            };
+        } catch (error) {
+            console.warn('🔥 Firebase initialization failed, using local storage only:', error);
+            window.firebaseDB = null;
+        }
+    </script>
+
+    <!-- Chart.js for analytics charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2E5BBA, #667eea);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card {
+            text-align: center;
+            border-left: 4px solid #2E5BBA;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #2E5BBA;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .chart-card {
+            min-height: 400px;
+        }
+
+        .chart-card h3 {
+            margin-bottom: 1.5rem;
+            color: #2E5BBA;
+            font-size: 1.3rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2E5BBA;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .device-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .device-mobile { background: #e3f2fd; color: #1976d2; }
+        .device-desktop { background: #f3e5f5; color: #7b1fa2; }
+        .device-tablet { background: #e8f5e8; color: #388e3c; }
+
+        .refresh-btn {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn:hover {
+            background: #059669;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c66;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #6c6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .real-time-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #10B981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-chart-line"></i> Beadsyde Analytics Dashboard</h1>
+        <p>Real-time customer insights & business analytics</p>
+    </div>
+
+    <div class="real-time-indicator">
+        <div class="pulse">🔴</div>
+        <span>Live Analytics</span>
+    </div>
+
+    <div class="container">
+        <button class="refresh-btn" onclick="refreshDashboard()">
+            <i class="fas fa-sync-alt"></i>
+            Refresh Data
+        </button>
+
+        <div class="dashboard-grid">
+            <!-- Key Metrics -->
+            <div class="card stat-card">
+                <div class="stat-number" id="totalVisitors">-</div>
+                <div class="stat-label">Total Visitors</div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-number" id="totalOrders">-</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-number" id="totalRevenue">₹-</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-number" id="conversionRate">-</div>
+                <div class="stat-label">Conversion Rate</div>
+            </div>
+
+            <!-- Cart Analytics -->
+            <div class="card stat-card">
+                <div class="stat-number" id="cartAdditions">-</div>
+                <div class="stat-label">Cart Additions</div>
+            </div>
+
+            <div class="card stat-card">
+                <div class="stat-number" id="whatsappClicks">-</div>
+                <div class="stat-label">WhatsApp Redirects</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Device Analytics Chart -->
+            <div class="card chart-card">
+                <h3><i class="fas fa-mobile-alt"></i> Device Usage</h3>
+                <canvas id="deviceChart"></canvas>
+            </div>
+
+            <!-- Traffic Over Time -->
+            <div class="card chart-card">
+                <h3><i class="fas fa-chart-area"></i> Traffic Over Time</h3>
+                <canvas id="trafficChart"></canvas>
+            </div>
+
+            <!-- Product Analytics -->
+            <div class="card chart-card">
+                <h3><i class="fas fa-gem"></i> Product Performance</h3>
+                <canvas id="productChart"></canvas>
+            </div>
+
+            <!-- Conversion Funnel -->
+            <div class="card chart-card">
+                <h3><i class="fas fa-funnel-dollar"></i> Conversion Funnel</h3>
+                <canvas id="funnelChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Recent Activity Tables -->
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3><i class="fas fa-clock"></i> Recent Orders</h3>
+                <div class="loading" id="ordersLoading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading orders...</p>
+                </div>
+                <div id="ordersContent" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Items</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-users"></i> Recent Visitors</h3>
+                <div class="loading" id="visitorsLoading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading visitors...</p>
+                </div>
+                <div id="visitorsContent" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Session</th>
+                                <th>Device</th>
+                                <th>Location</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitorsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AnalyticsDashboard {
+            constructor() {
+                this.database = null;
+                this.charts = {};
+                this.data = {
+                    visitors: [],
+                    orders: [],
+                    events: [],
+                    whatsappMessages: []
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.initFirebase();
+                this.loadData();
+                this.setupRealTimeUpdates();
+
+                // Refresh every 30 seconds
+                setInterval(() => this.loadData(), 30000);
+            }
+
+            initFirebase() {
+                try {
+                    // Use same config as main site
+                    const firebaseConfig = {
+                        apiKey: "your-api-key",
+                        authDomain: "beadsyde-analytics.firebaseapp.com",
+                        databaseURL: "https://beadsyde-analytics-default-rtdb.firebaseio.com",
+                        projectId: "beadsyde-analytics"
+                    };
+
+                    if (typeof firebase !== 'undefined') {
+                        firebase.initializeApp(firebaseConfig);
+                        this.database = firebase.database();
+                        console.log('🔥 Firebase connected for dashboard');
+                    } else {
+                        console.warn('Firebase not available, using demo data');
+                        this.loadDemoData();
+                    }
+                } catch (error) {
+                    console.error('Firebase init failed:', error);
+                    this.loadDemoData();
+                }
+            }
+
+            async loadData() {
+                // Use Firebase data if available
+                this.data.orders = window.firebaseOrders || [];
+                this.data.events = window.firebaseEvents || [];
+                this.data.whatsappMessages = window.firebaseWhatsApp || [];
+
+                // Also load from localStorage as backup
+                const localOrders = JSON.parse(localStorage.getItem('beadsyde_orders') || '[]');
+                const localEvents = JSON.parse(localStorage.getItem('beadsyde_analytics') || '[]');
+                const localWhatsApp = JSON.parse(localStorage.getItem('beadsyde_whatsapp_interactions') || '[]');
+
+                // Merge Firebase and local data
+                this.data.orders = [...this.data.orders, ...localOrders];
+                this.data.events = [...this.data.events, ...localEvents];
+                this.data.whatsappMessages = [...this.data.whatsappMessages, ...localWhatsApp];
+
+                // Remove duplicates based on timestamp and orderId
+                this.data.orders = this.removeDuplicates(this.data.orders, 'orderId');
+                this.data.events = this.removeDuplicates(this.data.events, 'timestamp');
+                this.data.whatsappMessages = this.removeDuplicates(this.data.whatsappMessages, 'timestamp');
+
+                console.log('📊 Dashboard data loaded:', {
+                    orders: this.data.orders.length,
+                    events: this.data.events.length,
+                    whatsapp: this.data.whatsappMessages.length
+                });
+
+                if (this.data.orders.length === 0 && this.data.events.length === 0) {
+                    this.loadDemoData();
+                } else {
+                    this.updateDashboard();
+                }
+            }
+
+            removeDuplicates(array, key) {
+                const seen = new Set();
+                return array.filter(item => {
+                    const keyValue = item[key];
+                    if (seen.has(keyValue)) {
+                        return false;
+                    }
+                    seen.add(keyValue);
+                    return true;
+                });
+            }
+
+            refreshData() {
+                this.loadData();
+            }
+
+            loadDemoData() {
+                // Generate demo data for testing
+                this.data = {
+                    visitors: Array.from({length: 50}, (_, i) => ({
+                        sessionId: `sess_${i}`,
+                        deviceType: ['mobile', 'desktop', 'tablet'][Math.floor(Math.random() * 3)],
+                        timestamp: Date.now() - (i * 3600000),
+                        events: Math.floor(Math.random() * 10) + 1
+                    })),
+                    orders: Array.from({length: 12}, (_, i) => ({
+                        orderId: `BDS${Date.now()}${i}`,
+                        total: [499, 349, 848, 698][Math.floor(Math.random() * 4)],
+                        customerName: `Customer ${i + 1}`,
+                        timestamp: Date.now() - (i * 7200000),
+                        items: Math.floor(Math.random() * 3) + 1
+                    })),
+                    events: Array.from({length: 200}, (_, i) => ({
+                        eventType: ['page_view', 'add_to_cart', 'form_field_interaction', 'click'][Math.floor(Math.random() * 4)],
+                        timestamp: Date.now() - (i * 1800000)
+                    })),
+                    whatsappMessages: Array.from({length: 8}, (_, i) => ({
+                        orderId: `BDS${Date.now()}${i}`,
+                        timestamp: Date.now() - (i * 3600000)
+                    }))
+                };
+
+                this.updateDashboard();
+            }
+
+            updateDashboard() {
+                this.updateStats();
+                this.updateCharts();
+                this.updateTables();
+            }
+
+            updateStats() {
+                const uniqueVisitors = new Set(this.data.events.map(e => e.sessionId)).size;
+                const totalOrders = this.data.orders.length;
+                const totalRevenue = this.data.orders.reduce((sum, order) => sum + (order.total || 0), 0);
+                const conversionRate = uniqueVisitors > 0 ? ((totalOrders / uniqueVisitors) * 100).toFixed(1) + '%' : '0%';
+                const cartAdditions = this.data.events.filter(e => e.eventType === 'add_to_cart').length;
+                const whatsappClicks = this.data.whatsappMessages.length;
+
+                document.getElementById('totalVisitors').textContent = uniqueVisitors || '-';
+                document.getElementById('totalOrders').textContent = totalOrders || '-';
+                document.getElementById('totalRevenue').textContent = `₹${totalRevenue || '-'}`;
+                document.getElementById('conversionRate').textContent = conversionRate;
+                document.getElementById('cartAdditions').textContent = cartAdditions || '-';
+                document.getElementById('whatsappClicks').textContent = whatsappClicks || '-';
+            }
+
+            updateCharts() {
+                this.createDeviceChart();
+                this.createTrafficChart();
+                this.createProductChart();
+                this.createFunnelChart();
+            }
+
+            createDeviceChart() {
+                const ctx = document.getElementById('deviceChart').getContext('2d');
+
+                if (this.charts.device) {
+                    this.charts.device.destroy();
+                }
+
+                const deviceData = this.data.visitors.reduce((acc, visitor) => {
+                    acc[visitor.deviceType] = (acc[visitor.deviceType] || 0) + 1;
+                    return acc;
+                }, {});
+
+                this.charts.device = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(deviceData),
+                        datasets: [{
+                            data: Object.values(deviceData),
+                            backgroundColor: ['#2E5BBA', '#10B981', '#F59E0B']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            createTrafficChart() {
+                const ctx = document.getElementById('trafficChart').getContext('2d');
+
+                if (this.charts.traffic) {
+                    this.charts.traffic.destroy();
+                }
+
+                // Group events by hour
+                const hourlyData = {};
+                this.data.events.forEach(event => {
+                    const hour = new Date(event.timestamp).getHours();
+                    hourlyData[hour] = (hourlyData[hour] || 0) + 1;
+                });
+
+                this.charts.traffic = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({length: 24}, (_, i) => `${i}:00`),
+                        datasets: [{
+                            label: 'Events',
+                            data: Array.from({length: 24}, (_, i) => hourlyData[i] || 0),
+                            borderColor: '#2E5BBA',
+                            backgroundColor: 'rgba(46, 91, 186, 0.1)',
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            createProductChart() {
+                const ctx = document.getElementById('productChart').getContext('2d');
+
+                if (this.charts.product) {
+                    this.charts.product.destroy();
+                }
+
+                // Simulate product data
+                const products = {
+                    'Silver Infinity Necklace': Math.floor(Math.random() * 50) + 10,
+                    'Gold Infinity Necklace': Math.floor(Math.random() * 40) + 5,
+                    'Silver Infinity Bracelet': Math.floor(Math.random() * 35) + 8,
+                    'Gold Infinity Bracelet': Math.floor(Math.random() * 30) + 3
+                };
+
+                this.charts.product = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(products),
+                        datasets: [{
+                            label: 'Views',
+                            data: Object.values(products),
+                            backgroundColor: '#2E5BBA'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            createFunnelChart() {
+                const ctx = document.getElementById('funnelChart').getContext('2d');
+
+                if (this.charts.funnel) {
+                    this.charts.funnel.destroy();
+                }
+
+                const pageViews = this.data.events.filter(e => e.eventType === 'page_view').length;
+                const cartAdds = this.data.events.filter(e => e.eventType === 'add_to_cart').length;
+                const whatsappClicks = this.data.whatsappMessages.length;
+                const orders = this.data.orders.length;
+
+                this.charts.funnel = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Page Views', 'Add to Cart', 'WhatsApp Click', 'Orders'],
+                        datasets: [{
+                            label: 'Users',
+                            data: [pageViews, cartAdds, whatsappClicks, orders],
+                            backgroundColor: ['#2E5BBA', '#10B981', '#F59E0B', '#EF4444']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        scales: {
+                            x: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateTables() {
+                this.updateOrdersTable();
+                this.updateVisitorsTable();
+            }
+
+            updateOrdersTable() {
+                const tbody = document.getElementById('ordersTableBody');
+                const loading = document.getElementById('ordersLoading');
+                const content = document.getElementById('ordersContent');
+
+                const recentOrders = this.data.orders
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 10);
+
+                tbody.innerHTML = recentOrders.map(order => `
+                    <tr>
+                        <td>${order.orderId}</td>
+                        <td>${order.customerName || 'Anonymous'}</td>
+                        <td>₹${order.total}</td>
+                        <td>${order.items} items</td>
+                        <td>${new Date(order.timestamp).toLocaleString()}</td>
+                    </tr>
+                `).join('');
+
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            }
+
+            updateVisitorsTable() {
+                const tbody = document.getElementById('visitorsTableBody');
+                const loading = document.getElementById('visitorsLoading');
+                const content = document.getElementById('visitorsContent');
+
+                const recentVisitors = this.data.visitors
+                    .sort((a, b) => b.timestamp - a.timestamp)
+                    .slice(0, 10);
+
+                tbody.innerHTML = recentVisitors.map(visitor => `
+                    <tr>
+                        <td>${visitor.sessionId.substring(0, 12)}...</td>
+                        <td><span class="device-badge device-${visitor.deviceType}">${visitor.deviceType}</span></td>
+                        <td>Unknown</td>
+                        <td>${Math.floor((Date.now() - visitor.timestamp) / 60000)}m ago</td>
+                        <td>${visitor.events} events</td>
+                    </tr>
+                `).join('');
+
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            }
+
+            setupRealTimeUpdates() {
+                if (!this.database) return;
+
+                // Listen for new orders
+                this.database.ref('orders').on('child_added', (snapshot) => {
+                    console.log('🔔 New order received:', snapshot.val());
+                    this.loadData();
+                });
+
+                // Listen for new events
+                this.database.ref('analytics_events').on('child_added', (snapshot) => {
+                    console.log('📊 New event:', snapshot.val());
+                });
+            }
+        }
+
+        // Global functions
+        function refreshDashboard() {
+            window.dashboard.loadData();
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboard = new AnalyticsDashboard();
+
+            // Set up Firebase listeners if available
+            if (window.setupFirebaseListeners) {
+                window.setupFirebaseListeners();
+            }
+        });
+    </script>
+</body>
+</html>

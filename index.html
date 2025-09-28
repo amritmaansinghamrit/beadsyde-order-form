@@ -7,6 +7,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Daydream&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZEEWPYS2LD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-ZEEWPYS2LD');
+
+        // Debug Google Analytics
+        console.log('🔍 Google Analytics initialized with ID: G-ZEEWPYS2LD');
+    </script>
+
+    <!-- Firebase for Real-time Database -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, push, set, onValue } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+        // Firebase configuration - Your actual config
+        const firebaseConfig = {
+            apiKey: "AIzaSyAruBAoy7ND1n6TyPGu0wlfZYc1czWRcfA",
+            authDomain: "beadsyde-rashi.firebaseapp.com",
+            databaseURL: "https://beadsyde-rashi-default-rtdb.firebaseio.com",
+            projectId: "beadsyde-rashi",
+            storageBucket: "beadsyde-rashi.firebasestorage.app",
+            messagingSenderId: "577212292475",
+            appId: "1:577212292475:web:eb53d288cb99d6937b31de",
+            measurementId: "G-ZEEWPYS2LD"
+        };
+
+        // Initialize Firebase
+        let app, database;
+        try {
+            app = initializeApp(firebaseConfig);
+            database = getDatabase(app);
+            window.firebaseDB = database;
+            console.log('🔥 Firebase initialized successfully');
+        } catch (error) {
+            console.warn('🔥 Firebase initialization failed, using local storage fallback:', error);
+            window.firebaseDB = null;
+        }
+    </script>
+
+    <!-- Comprehensive Analytics Tracking -->
     <script defer src="https://cdn.vercel-insights.com/v1/script.debug.js"></script>
     <style>
         :root {
@@ -1470,6 +1514,444 @@
     </div>
 
     <script>
+        // =============================================
+        // COMPREHENSIVE ANALYTICS TRACKING SYSTEM
+        // =============================================
+
+        class BeadsydeAnalytics {
+            constructor() {
+                this.sessionId = this.generateSessionId();
+                this.pageLoadTime = Date.now();
+                this.userId = this.getUserId();
+                this.events = [];
+                this.cartEvents = [];
+                this.isTracking = true;
+                this.firebaseReady = false;
+
+                // Wait for Firebase to be ready
+                this.waitForFirebase().then(() => {
+                    this.firebaseReady = true;
+                    console.log('📊 Analytics ready with Firebase');
+                });
+
+                this.init();
+            }
+
+            async waitForFirebase() {
+                return new Promise((resolve) => {
+                    const checkFirebase = () => {
+                        if (window.firebaseDB) {
+                            resolve();
+                        } else {
+                            setTimeout(checkFirebase, 100);
+                        }
+                    };
+                    checkFirebase();
+                });
+            }
+
+            init() {
+                // Initialize Firebase
+                this.initFirebase();
+
+                // Track page view immediately
+                this.trackPageView();
+
+                // Set up event listeners
+                this.setupEventTracking();
+
+                // Track session duration
+                this.trackSessionDuration();
+
+                // Send events periodically
+                setInterval(() => this.flushEvents(), 30000);
+
+                // Track page exit
+                window.addEventListener('beforeunload', () => this.trackPageExit());
+
+                console.log('🔥 Beadsyde Analytics initialized');
+            }
+
+            generateSessionId() {
+                return 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2);
+            }
+
+            getUserId() {
+                let userId = localStorage.getItem('beadsyde_user_id');
+                if (!userId) {
+                    userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substring(2);
+                    localStorage.setItem('beadsyde_user_id', userId);
+                }
+                return userId;
+            }
+
+            initFirebase() {
+                // Use the already initialized Firebase database
+                this.database = window.firebaseDB;
+                if (this.database) {
+                    console.log('🔥 Firebase database connected to analytics');
+                } else {
+                    console.warn('Firebase not available, using localStorage fallback');
+                }
+            }
+
+            getDeviceInfo() {
+                const ua = navigator.userAgent;
+                let deviceType = 'desktop';
+
+                if (/tablet|ipad|playbook|silk/i.test(ua)) {
+                    deviceType = 'tablet';
+                } else if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(ua)) {
+                    deviceType = 'mobile';
+                }
+
+                return {
+                    deviceType,
+                    browser: this.getBrowser(ua),
+                    os: this.getOS(ua),
+                    screenWidth: window.screen.width,
+                    screenHeight: window.screen.height,
+                    viewportWidth: window.innerWidth,
+                    viewportHeight: window.innerHeight,
+                    userAgent: ua,
+                    language: navigator.language,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                };
+            }
+
+            getBrowser(ua) {
+                if (ua.includes('Chrome')) return 'Chrome';
+                if (ua.includes('Firefox')) return 'Firefox';
+                if (ua.includes('Safari')) return 'Safari';
+                if (ua.includes('Edge')) return 'Edge';
+                if (ua.includes('Opera')) return 'Opera';
+                return 'Unknown';
+            }
+
+            getOS(ua) {
+                if (ua.includes('Windows')) return 'Windows';
+                if (ua.includes('Mac')) return 'macOS';
+                if (ua.includes('Linux')) return 'Linux';
+                if (ua.includes('Android')) return 'Android';
+                if (ua.includes('iOS')) return 'iOS';
+                return 'Unknown';
+            }
+
+            trackEvent(eventType, eventData = {}) {
+                const event = {
+                    eventType,
+                    eventData,
+                    sessionId: this.sessionId,
+                    userId: this.userId,
+                    timestamp: Date.now(),
+                    url: window.location.href,
+                    referrer: document.referrer,
+                    deviceInfo: this.getDeviceInfo()
+                };
+
+                this.events.push(event);
+
+                // Also send to Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', eventType, eventData);
+                }
+
+                console.log('📊 Event tracked:', eventType, eventData);
+            }
+
+            trackPageView() {
+                this.trackEvent('page_view', {
+                    page_title: document.title,
+                    page_location: window.location.href,
+                    load_time: Date.now() - this.pageLoadTime
+                });
+            }
+
+            trackProductView(productId, productName, price) {
+                this.trackEvent('view_item', {
+                    item_id: productId,
+                    item_name: productName,
+                    price: price,
+                    currency: 'INR'
+                });
+            }
+
+            trackAddToCart(productId, productName, price, quantity) {
+                this.trackEvent('add_to_cart', {
+                    item_id: productId,
+                    item_name: productName,
+                    price: price,
+                    quantity: quantity,
+                    currency: 'INR'
+                });
+
+                this.cartEvents.push({
+                    action: 'add_to_cart',
+                    productId,
+                    productName,
+                    price,
+                    quantity,
+                    timestamp: Date.now()
+                });
+            }
+
+            trackRemoveFromCart(productId, productName) {
+                this.trackEvent('remove_from_cart', {
+                    item_id: productId,
+                    item_name: productName
+                });
+            }
+
+            trackPurchase(orderData) {
+                this.trackEvent('purchase', {
+                    transaction_id: orderData.orderId,
+                    value: orderData.total,
+                    currency: 'INR',
+                    items: orderData.items.map(item => ({
+                        item_id: item.id,
+                        item_name: item.name,
+                        price: item.price,
+                        quantity: item.quantity
+                    }))
+                });
+
+                // Save detailed order to database
+                this.saveOrderToDatabase(orderData);
+            }
+
+            trackFormField(fieldName, fieldValue) {
+                this.trackEvent('form_field_interaction', {
+                    field_name: fieldName,
+                    field_value: fieldValue ? 'filled' : 'empty',
+                    has_value: !!fieldValue
+                });
+            }
+
+            trackWhatsAppRedirect(orderData) {
+                this.trackEvent('whatsapp_redirect', {
+                    order_id: orderData.orderId,
+                    total_amount: orderData.total,
+                    items_count: orderData.items.length
+                });
+
+                // Save WhatsApp interaction
+                this.saveWhatsAppMessage(orderData);
+            }
+
+            saveOrderToDatabase(orderData) {
+                if (!this.database) return;
+
+                const orderRef = this.database.ref('orders').push();
+                orderRef.set({
+                    ...orderData,
+                    sessionId: this.sessionId,
+                    userId: this.userId,
+                    timestamp: Date.now(),
+                    deviceInfo: this.getDeviceInfo()
+                }).catch(error => console.error('Database save failed:', error));
+            }
+
+            saveWhatsAppMessage(orderData) {
+                if (!this.database) return;
+
+                const messageRef = this.database.ref('whatsapp_messages').push();
+                messageRef.set({
+                    orderId: orderData.orderId,
+                    customerName: orderData.customer?.name,
+                    customerPhone: orderData.customer?.phone,
+                    totalAmount: orderData.total,
+                    items: orderData.items,
+                    sessionId: this.sessionId,
+                    userId: this.userId,
+                    timestamp: Date.now()
+                }).catch(error => console.error('WhatsApp message save failed:', error));
+            }
+
+            trackSessionDuration() {
+                setInterval(() => {
+                    this.trackEvent('session_ping', {
+                        duration: Date.now() - this.pageLoadTime
+                    });
+                }, 60000); // Every minute
+            }
+
+            trackPageExit() {
+                const event = {
+                    eventType: 'page_exit',
+                    sessionId: this.sessionId,
+                    userId: this.userId,
+                    timestamp: Date.now(),
+                    sessionDuration: Date.now() - this.pageLoadTime,
+                    cartState: cart,
+                    cartCount: cartCount
+                };
+
+                // Send immediately using beacon
+                if (navigator.sendBeacon && this.database) {
+                    const data = JSON.stringify(event);
+                    navigator.sendBeacon('/api/analytics', data);
+                }
+            }
+
+            setupEventTracking() {
+                // Track all clicks
+                document.addEventListener('click', (e) => {
+                    this.trackEvent('click', {
+                        element: e.target.tagName,
+                        class: e.target.className,
+                        id: e.target.id,
+                        text: e.target.innerText?.substring(0, 50)
+                    });
+                });
+
+                // Track scroll depth
+                let maxScroll = 0;
+                window.addEventListener('scroll', () => {
+                    const scrollPercent = Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100);
+                    if (scrollPercent > maxScroll) {
+                        maxScroll = scrollPercent;
+                        if (scrollPercent >= 25 && scrollPercent < 50) {
+                            this.trackEvent('scroll_depth', { depth: '25%' });
+                        } else if (scrollPercent >= 50 && scrollPercent < 75) {
+                            this.trackEvent('scroll_depth', { depth: '50%' });
+                        } else if (scrollPercent >= 75) {
+                            this.trackEvent('scroll_depth', { depth: '75%' });
+                        }
+                    }
+                });
+            }
+
+            async flushEvents() {
+                if (this.events.length === 0) return;
+
+                // Save to localStorage as fallback
+                const localEvents = JSON.parse(localStorage.getItem('beadsyde_analytics') || '[]');
+                localEvents.push(...this.events);
+                localStorage.setItem('beadsyde_analytics', JSON.stringify(localEvents));
+
+                // Save to Firebase if available
+                if (this.database && this.firebaseReady) {
+                    try {
+                        // Import Firebase functions dynamically
+                        const { ref, push } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js');
+
+                        const eventsRef = ref(this.database, 'analytics_events');
+
+                        // Push each event to Firebase
+                        for (const event of this.events) {
+                            await push(eventsRef, event);
+                        }
+
+                        console.log(`🔥 Uploaded ${this.events.length} events to Firebase`);
+                    } catch (error) {
+                        console.warn('Failed to upload events to Firebase:', error);
+                    }
+                }
+
+                console.log(`📤 Processed ${this.events.length} events`);
+                this.events = [];
+            }
+
+            trackPurchase(orderData) {
+                this.trackEvent('purchase', {
+                    order_id: orderData.orderId,
+                    customer_name: orderData.customerName,
+                    customer_phone: orderData.customerPhone,
+                    total_amount: orderData.totalAmount,
+                    item_count: orderData.items.length,
+                    items: orderData.items,
+                    address: orderData.address,
+                    currency: 'INR'
+                });
+
+                // Save complete order to cloud database
+                this.saveOrderToCloud(orderData);
+            }
+
+            trackWhatsAppRedirect(orderData) {
+                this.trackEvent('whatsapp_redirect', {
+                    order_id: orderData.orderId,
+                    customer_name: orderData.customerName,
+                    customer_phone: orderData.customerPhone,
+                    whatsapp_number: '918104563011',
+                    message_sent: true
+                });
+
+                // Save WhatsApp interaction to cloud database
+                this.saveWhatsAppInteraction(orderData);
+            }
+
+            async saveOrderToCloud(orderData) {
+                // Save to localStorage first
+                const orders = JSON.parse(localStorage.getItem('beadsyde_orders') || '[]');
+                orders.push({
+                    ...orderData,
+                    timestamp: Date.now(),
+                    deviceInfo: this.getDeviceInfo()
+                });
+                localStorage.setItem('beadsyde_orders', JSON.stringify(orders));
+
+                // Save to Firebase if available
+                if (this.database && this.firebaseReady) {
+                    try {
+                        const { ref, push } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js');
+                        const ordersRef = ref(this.database, 'orders');
+
+                        await push(ordersRef, {
+                            ...orderData,
+                            timestamp: Date.now(),
+                            deviceInfo: this.getDeviceInfo(),
+                            sessionId: this.sessionId,
+                            userId: this.userId
+                        });
+
+                        console.log('🛒 Order saved to cloud database');
+                    } catch (error) {
+                        console.warn('Failed to save order to Firebase:', error);
+                    }
+                }
+            }
+
+            async saveWhatsAppInteraction(orderData) {
+                const interactionData = {
+                    orderId: orderData.orderId,
+                    customerName: orderData.customerName,
+                    customerPhone: orderData.customerPhone,
+                    whatsappNumber: '918104563011',
+                    timestamp: Date.now(),
+                    deviceInfo: this.getDeviceInfo(),
+                    sessionId: this.sessionId,
+                    userId: this.userId
+                };
+
+                // Save to localStorage
+                const interactions = JSON.parse(localStorage.getItem('beadsyde_whatsapp_interactions') || '[]');
+                interactions.push(interactionData);
+                localStorage.setItem('beadsyde_whatsapp_interactions', JSON.stringify(interactions));
+
+                // Save to Firebase if available
+                if (this.database && this.firebaseReady) {
+                    try {
+                        const { ref, push } = await import('https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js');
+                        const whatsappRef = ref(this.database, 'whatsapp_interactions');
+
+                        await push(whatsappRef, interactionData);
+
+                        console.log('💬 WhatsApp interaction saved to cloud database');
+                    } catch (error) {
+                        console.warn('Failed to save WhatsApp interaction to Firebase:', error);
+                    }
+                }
+            }
+        }
+
+        // Initialize analytics
+        window.analytics = new BeadsydeAnalytics();
+
+        // =============================================
+        // ORIGINAL BEADSYDE CODE
+        // =============================================
+
         // Shopping cart state
         let cart = {};
         let cartCount = 0;
@@ -1672,6 +2154,17 @@
             }, 1000);
 
             updateCartDisplay();
+
+            // 📊 ANALYTICS: Track add to cart
+            if (window.analytics) {
+                window.analytics.trackAddToCart(
+                    productKey,
+                    productInfo.name,
+                    productInfo.price,
+                    quantity
+                );
+            }
+
             // Update form validation to refresh CTA button
             validateForm();
         }
@@ -1718,6 +2211,12 @@
             updateQuantityButtons(productKey);
 
             updateCartDisplay();
+
+            // 📊 ANALYTICS: Track remove from cart
+            if (window.analytics) {
+                window.analytics.trackRemoveFromCart(productKey, 'Unknown Product');
+            }
+
             // Update form validation to refresh CTA button
             validateForm();
         }
@@ -1837,6 +2336,11 @@
                     if (this.value.trim() !== '') {
                         const formGroup = this.closest('.form-group');
                         formGroup.classList.remove('error');
+                    }
+
+                    // 📊 ANALYTICS: Track form field interactions
+                    if (window.analytics) {
+                        window.analytics.trackFormField(this.id || this.name, this.value);
                     }
                 });
             });
@@ -2151,6 +2655,12 @@ Share payment screenshot to confirm your order!`;
 
                     // Log to Google Sheets
                     await logToGoogleSheets(orderData);
+
+                    // 📊 ANALYTICS: Track order completion and WhatsApp redirect
+                    if (window.analytics) {
+                        window.analytics.trackPurchase(orderData);
+                        window.analytics.trackWhatsAppRedirect(orderData);
+                    }
 
                     // Generate WhatsApp message with UPI link included
                     const whatsappMessage = generateWhatsAppMessage(orderData);

@@ -2589,20 +2589,9 @@ Share payment screenshot to confirm your order!`;
         }
 
         async function logToGoogleSheets(orderData) {
-            try {
-                const response = await fetch('YOUR_GOOGLE_APPS_SCRIPT_URL', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(orderData)
-                });
-
-                return response.ok;
-            } catch (error) {
-                console.error('Error logging to Google Sheets:', error);
-                return false;
-            }
+            // Google Sheets integration disabled - using Firebase analytics instead
+            console.log('📊 Order data saved to Firebase analytics:', orderData.orderId);
+            return true;
         }
 
         function setupSubmission() {

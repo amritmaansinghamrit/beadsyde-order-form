@@ -2532,15 +2532,18 @@
             const total = itemsTotal + shippingCost;
 
             return {
+                orderId: 'ORD-' + Date.now(),
                 products: selectedProducts,
-                customer: {
-                    ...customerData,
-                    fullAddress: fullAddress
-                },
+                items: selectedProducts,
+                customer: customerData,
+                customerName: customerData.name,
+                customerPhone: customerData.phone,
+                address: fullAddress,
                 shipping: shippingCost,
                 total: total,
+                totalAmount: total,
                 orderDate: new Date().toLocaleString('en-IN'),
-                orderDate: new Date().toLocaleString('en-IN')
+                timestamp: Date.now()
             };
         }
 
@@ -2551,7 +2554,7 @@
 
 Name: ${orderData.customer.name}
 Phone: ${orderData.customer.phone}
-Address: ${orderData.customer.fullAddress}
+Address: ${orderData.address}
 
 `;
             orderData.products.forEach((product, index) => {
@@ -2646,9 +2649,14 @@ Share payment screenshot to confirm your order!`;
                     await logToGoogleSheets(orderData);
 
                     // 📊 ANALYTICS: Track order completion and WhatsApp redirect
-                    if (window.analytics) {
-                        window.analytics.trackPurchase(orderData);
-                        window.analytics.trackWhatsAppRedirect(orderData);
+                    try {
+                        if (window.analytics) {
+                            window.analytics.trackPurchase(orderData);
+                            window.analytics.trackWhatsAppRedirect(orderData);
+                        }
+                    } catch (analyticsError) {
+                        console.warn('Analytics tracking failed:', analyticsError);
+                        // Don't let analytics errors block the order
                     }
 
                     // Generate WhatsApp message with UPI link included

@@ -291,6 +291,36 @@
                 font-size: 2rem;
             }
         }
+
+        .form-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2E5BBA;
+        }
     </style>
 </head>
 <body>
@@ -413,6 +443,63 @@
                             </tr>
                         </thead>
                         <tbody id="visitorsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Product Analytics Section -->
+            <div class="card">
+                <h3><i class="fas fa-shopping-cart"></i> Cart Analytics</h3>
+                <div id="productAnalyticsContent">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Variant</th>
+                                <th>Times Added</th>
+                                <th>Total Quantity</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productAnalyticsBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Contact Analytics Section -->
+            <div class="card">
+                <h3><i class="fas fa-address-book"></i> Contact Form Analytics</h3>
+                <div id="contactAnalyticsContent">
+                    <div class="form-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Form Starts:</span>
+                            <span class="stat-value" id="formStarts">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Form Completions:</span>
+                            <span class="stat-value" id="formCompletions">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Completion Rate:</span>
+                            <span class="stat-value" id="formCompletionRate">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Avg Progress:</span>
+                            <span class="stat-value" id="avgFormProgress">-</span>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Field</th>
+                                <th>Interactions</th>
+                                <th>Completion Rate</th>
+                                <th>Avg Length</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactAnalyticsBody">
                         </tbody>
                     </table>
                 </div>
@@ -551,6 +638,8 @@
                 this.updateStats();
                 this.updateCharts();
                 this.updateTables();
+                this.updateProductAnalytics();
+                this.updateContactAnalytics();
             }
 
             updateStats() {
@@ -778,6 +867,119 @@
                 this.database.ref('analytics_events').on('child_added', (snapshot) => {
                     console.log('📊 New event:', snapshot.val());
                 });
+            }
+
+            updateProductAnalytics() {
+                // Analyze cart events from analytics data
+                const cartEvents = this.data.events.filter(e => e.eventType === 'add_to_cart');
+                const productStats = {};
+
+                cartEvents.forEach(event => {
+                    const key = `${event.eventData.item_name} - ${event.eventData.product_variant || 'Unknown'}`;
+                    if (!productStats[key]) {
+                        productStats[key] = {
+                            product: event.eventData.item_name,
+                            variant: event.eventData.product_variant || 'Unknown',
+                            timesAdded: 0,
+                            totalQuantity: 0,
+                            totalRevenue: 0
+                        };
+                    }
+
+                    productStats[key].timesAdded += 1;
+                    productStats[key].totalQuantity += event.eventData.quantity || 1;
+                    productStats[key].totalRevenue += event.eventData.total_value || (event.eventData.price * event.eventData.quantity);
+                });
+
+                const tbody = document.getElementById('productAnalyticsBody');
+                const sortedProducts = Object.values(productStats)
+                    .sort((a, b) => b.timesAdded - a.timesAdded);
+
+                tbody.innerHTML = sortedProducts.map(product => `
+                    <tr>
+                        <td>${product.product}</td>
+                        <td><span class="badge">${product.variant}</span></td>
+                        <td>${product.timesAdded}</td>
+                        <td>${product.totalQuantity}</td>
+                        <td>₹${product.totalRevenue}</td>
+                    </tr>
+                `).join('') || '<tr><td colspan="5">No cart data available</td></tr>';
+            }
+
+            updateContactAnalytics() {
+                // Analyze form interaction events
+                const formEvents = this.data.events.filter(e =>
+                    e.eventType === 'form_field_focus' ||
+                    e.eventType === 'form_field_blur' ||
+                    e.eventType === 'form_field_interaction' ||
+                    e.eventType === 'contact_details_filled'
+                );
+
+                const fieldStats = {};
+                const contactEvents = this.data.events.filter(e => e.eventType === 'contact_details_filled');
+
+                // Count form starts (first field interaction) and completions
+                const sessions = new Set();
+                const completedSessions = new Set();
+
+                formEvents.forEach(event => {
+                    sessions.add(event.sessionId);
+
+                    if (event.eventType === 'form_field_interaction') {
+                        const fieldType = event.eventData.field_type;
+                        if (!fieldStats[fieldType]) {
+                            fieldStats[fieldType] = {
+                                interactions: 0,
+                                completions: 0,
+                                totalLength: 0,
+                                values: []
+                            };
+                        }
+                        fieldStats[fieldType].interactions += 1;
+                        if (event.eventData.field_filled) {
+                            fieldStats[fieldType].completions += 1;
+                            fieldStats[fieldType].totalLength += event.eventData.field_length;
+                            fieldStats[fieldType].values.push(event.eventData.field_length);
+                        }
+                    }
+                });
+
+                contactEvents.forEach(event => {
+                    if (event.eventData.completion_percentage >= 80) {
+                        completedSessions.add(event.sessionId);
+                    }
+                });
+
+                const formStarts = sessions.size;
+                const formCompletions = completedSessions.size;
+                const completionRate = formStarts > 0 ? ((formCompletions / formStarts) * 100).toFixed(1) + '%' : '0%';
+                const avgProgress = contactEvents.length > 0 ?
+                    (contactEvents.reduce((sum, e) => sum + e.eventData.completion_percentage, 0) / contactEvents.length).toFixed(1) + '%' : '0%';
+
+                document.getElementById('formStarts').textContent = formStarts;
+                document.getElementById('formCompletions').textContent = formCompletions;
+                document.getElementById('formCompletionRate').textContent = completionRate;
+                document.getElementById('avgFormProgress').textContent = avgProgress;
+
+                const tbody = document.getElementById('contactAnalyticsBody');
+                const sortedFields = Object.entries(fieldStats)
+                    .sort(([,a], [,b]) => b.interactions - a.interactions);
+
+                tbody.innerHTML = sortedFields.map(([fieldType, stats]) => {
+                    const fieldCompletionRate = stats.interactions > 0 ?
+                        ((stats.completions / stats.interactions) * 100).toFixed(1) + '%' : '0%';
+                    const avgLength = stats.completions > 0 ?
+                        (stats.totalLength / stats.completions).toFixed(1) : '0';
+
+                    return `
+                        <tr>
+                            <td>${fieldType}</td>
+                            <td>${stats.interactions}</td>
+                            <td>${fieldCompletionRate}</td>
+                            <td>${avgLength}</td>
+                        </tr>
+                    `;
+                }).join('') || '<tr><td colspan="4">No form interaction data available</td></tr>';
             }
         }
 

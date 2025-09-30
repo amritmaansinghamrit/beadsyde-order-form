@@ -1676,22 +1676,39 @@
                 });
             }
 
-            trackAddToCart(productId, productName, price, quantity) {
-                this.trackEvent('add_to_cart', {
-                    item_id: productId,
+            trackAddToCart(productKey, productName, price, quantity, productData = {}) {
+                const detailedEvent = {
+                    item_id: productKey,
                     item_name: productName,
                     price: price,
                     quantity: quantity,
-                    currency: 'INR'
-                });
+                    currency: 'INR',
+                    product_variant: productData.variant || 'unknown',
+                    product_type: productData.product || 'unknown',
+                    product_image: productData.image || '',
+                    total_value: price * quantity
+                };
+
+                this.trackEvent('add_to_cart', detailedEvent);
 
                 this.cartEvents.push({
                     action: 'add_to_cart',
-                    productId,
+                    productKey,
                     productName,
                     price,
                     quantity,
+                    variant: productData.variant,
+                    productType: productData.product,
+                    image: productData.image,
+                    totalValue: price * quantity,
                     timestamp: Date.now()
+                });
+
+                console.log('🛒 Cart Event Tracked:', {
+                    product: productName,
+                    variant: productData.variant,
+                    quantity: quantity,
+                    price: price
                 });
             }
 
@@ -1819,6 +1836,57 @@
                         }
                     }
                 });
+
+                // Track contact form interactions
+                const contactFields = [
+                    'customerName', 'customerPhone', 'addressLine1',
+                    'addressCity', 'addressState', 'addressPincode',
+                    'addressLandmark', 'specialNotes'
+                ];
+
+                contactFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field) {
+                        field.addEventListener('input', () => {
+                            this.trackFormFieldInteraction(fieldId, field.value);
+
+                            // Track complete contact details when form is substantially filled
+                            const contactData = this.getCurrentContactData();
+                            if (this.calculateFormCompletion(contactData) >= 50) {
+                                this.trackContactDetails(contactData);
+                            }
+                        });
+
+                        field.addEventListener('focus', () => {
+                            this.trackEvent('form_field_focus', {
+                                field_id: fieldId,
+                                field_type: this.getFieldType(fieldId)
+                            });
+                        });
+
+                        field.addEventListener('blur', () => {
+                            this.trackEvent('form_field_blur', {
+                                field_id: fieldId,
+                                field_value_length: field.value.length,
+                                field_filled: field.value.length > 0,
+                                field_type: this.getFieldType(fieldId)
+                            });
+                        });
+                    }
+                });
+            }
+
+            getCurrentContactData() {
+                return {
+                    name: document.getElementById('customerName')?.value || '',
+                    phone: document.getElementById('customerPhone')?.value || '',
+                    address: document.getElementById('addressLine1')?.value || '',
+                    city: document.getElementById('addressCity')?.value || '',
+                    state: document.getElementById('addressState')?.value || '',
+                    pincode: document.getElementById('addressPincode')?.value || '',
+                    landmark: document.getElementById('addressLandmark')?.value || '',
+                    specialNotes: document.getElementById('specialNotes')?.value || ''
+                };
             }
 
             async flushEvents() {
@@ -1850,6 +1918,51 @@
 
                 console.log(`📤 Processed ${this.events.length} events`);
                 this.events = [];
+            }
+
+            trackFormFieldInteraction(fieldName, fieldValue) {
+                this.trackEvent('form_field_interaction', {
+                    field_name: fieldName,
+                    field_filled: fieldValue.length > 0,
+                    field_length: fieldValue.length,
+                    field_type: this.getFieldType(fieldName)
+                });
+            }
+
+            trackContactDetails(contactData) {
+                this.trackEvent('contact_details_filled', {
+                    has_name: !!contactData.name,
+                    has_phone: !!contactData.phone,
+                    has_address: !!contactData.address,
+                    has_city: !!contactData.city,
+                    has_state: !!contactData.state,
+                    has_pincode: !!contactData.pincode,
+                    has_landmark: !!contactData.landmark,
+                    has_notes: !!contactData.specialNotes,
+                    completion_percentage: this.calculateFormCompletion(contactData)
+                });
+
+                console.log('📝 Contact Details Tracked:', contactData);
+            }
+
+            getFieldType(fieldName) {
+                const fieldTypes = {
+                    customerName: 'name',
+                    customerPhone: 'phone',
+                    addressLine1: 'address',
+                    addressCity: 'city',
+                    addressState: 'state',
+                    addressPincode: 'pincode',
+                    addressLandmark: 'landmark',
+                    specialNotes: 'notes'
+                };
+                return fieldTypes[fieldName] || 'unknown';
+            }
+
+            calculateFormCompletion(contactData) {
+                const requiredFields = ['name', 'phone', 'address', 'city', 'state', 'pincode'];
+                const filledFields = requiredFields.filter(field => contactData[field] && contactData[field].trim().length > 0);
+                return Math.round((filledFields.length / requiredFields.length) * 100);
             }
 
             trackPurchase(orderData) {
@@ -2155,13 +2268,14 @@
 
             updateCartDisplay();
 
-            // 📊 ANALYTICS: Track add to cart
+            // 📊 ANALYTICS: Track add to cart with complete product data
             if (window.analytics) {
                 window.analytics.trackAddToCart(
                     productKey,
                     productInfo.name,
                     productInfo.price,
-                    quantity
+                    quantity,
+                    productInfo  // Pass complete product data
                 );
             }
 

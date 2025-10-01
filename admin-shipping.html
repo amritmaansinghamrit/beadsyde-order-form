@@ -888,17 +888,128 @@
             );
 
             if (shipment) {
-                resultsDiv.innerHTML = `
+                let trackingInfo = `
                     <div class="card">
                         <h4>Shipment Found</h4>
                         <p><strong>Order ID:</strong> ${shipment.beadsydeOrderId}</p>
                         <p><strong>Status:</strong> <span class="status-badge status-${shipment.status?.toLowerCase()}">${shipment.status || 'Unknown'}</span></p>
+                        <p><strong>Provider:</strong> ${shipment.indiaPostTrackingId ? 'India Post' : 'Shiprocket'}</p>
                         <p><strong>Tracking:</strong> ${shipment.awbCode || shipment.indiaPostTrackingId || 'N/A'}</p>
                         <p><strong>Last Updated:</strong> ${shipment.lastUpdated ? new Date(shipment.lastUpdated).toLocaleString() : 'Never'}</p>
+                `;
+
+                // Show detailed India Post tracking if available
+                if (shipment.trackingData && shipment.trackingData.consignment) {
+                    const data = shipment.trackingData;
+                    trackingInfo += `
+                        <hr>
+                        <h5>📦 Detailed Tracking Info</h5>
+                        <p><strong>Current Status:</strong> ${data.consignment.current_status}</p>
+                        <p><strong>Current Location:</strong> ${data.currentLocation || 'Unknown'}</p>
+                        <p><strong>Transit Duration:</strong> ${data.consignment.transit_duration || 'N/A'}</p>
+                        <p><strong>Booked On:</strong> ${data.consignment.booked_on ? new Date(data.consignment.booked_on).toLocaleString() : 'N/A'}</p>
+                        ${data.consignment.delivered_at ? `<p><strong>Delivered At:</strong> ${new Date(data.consignment.delivered_at).toLocaleString()}</p>` : ''}
+                        <p><strong>Origin:</strong> ${data.consignment.origin_pincode} → <strong>Destination:</strong> ${data.consignment.destination_pincode}</p>
+                    `;
+
+                    if (data.trackingEvents && data.trackingEvents.length > 0) {
+                        trackingInfo += `
+                            <hr>
+                            <h5>📋 Recent Tracking Events</h5>
+                            <div style="max-height: 200px; overflow-y: auto;">
+                        `;
+
+                        data.trackingEvents.slice(0, 5).forEach(event => {
+                            trackingInfo += `
+                                <div style="padding: 8px; border-left: 3px solid #2E5BBA; margin: 5px 0; background: #f8f9fa;">
+                                    <strong>${event.event}</strong><br>
+                                    <small>📍 ${event.office} (${event.pincode})</small>
+                                </div>
+                            `;
+                        });
+
+                        trackingInfo += '</div>';
+                    }
+                }
+
+                trackingInfo += `
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-sm btn-primary" onclick="refreshTrackingInfo('${shipment.beadsydeOrderId}')">
+                                <i class="fas fa-sync-alt"></i> Refresh Tracking
+                            </button>
+                        </div>
                     </div>
                 `;
+
+                resultsDiv.innerHTML = trackingInfo;
             } else {
-                resultsDiv.innerHTML = '<p>No shipment found with this ID or tracking number.</p>';
+                // Try to get live tracking if it looks like a tracking number
+                if (input.length > 8 && window.shippingManager) {
+                    resultsDiv.innerHTML = '<p>Searching live tracking data...</p>';
+
+                    try {
+                        const liveTracking = await window.shippingManager.getDetailedTrackingInfo(input, true);
+                        if (liveTracking.success) {
+                            resultsDiv.innerHTML = `
+                                <div class="card">
+                                    <h4>📦 Live India Post Tracking</h4>
+                                    <p><strong>Tracking ID:</strong> ${liveTracking.trackingId}</p>
+                                    <p><strong>Status:</strong> <span class="status-badge">${liveTracking.currentStatus}</span></p>
+                                    <p><strong>Current Location:</strong> ${liveTracking.currentLocation}</p>
+                                    <p><strong>Transit Duration:</strong> ${liveTracking.transitDuration}</p>
+                                    <p><strong>Origin:</strong> ${liveTracking.origin} → <strong>Destination:</strong> ${liveTracking.destination}</p>
+                                    ${liveTracking.deliveredAt ? `<p><strong>Delivered:</strong> ${new Date(liveTracking.deliveredAt).toLocaleString()}</p>` : ''}
+
+                                    <div style="margin-top: 1rem;">
+                                        <button class="btn btn-sm btn-success" onclick="linkTrackingToOrder('${input}')">
+                                            <i class="fas fa-link"></i> Link to Order
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            resultsDiv.innerHTML = '<p>No tracking information found for this number.</p>';
+                        }
+                    } catch (error) {
+                        resultsDiv.innerHTML = '<p>Error fetching live tracking data.</p>';
+                    }
+                } else {
+                    resultsDiv.innerHTML = '<p>No shipment found with this ID or tracking number.</p>';
+                }
+            }
+        }
+
+        async function refreshTrackingInfo(orderId) {
+            if (window.shippingManager) {
+                const shipment = window.adminPanel.shipments.find(s => s.beadsydeOrderId === orderId);
+                if (shipment) {
+                    if (shipment.indiaPostTrackingId) {
+                        await window.shippingManager.updateIndiaPostStatus(shipment);
+                    } else if (shipment.shiprocketOrderId) {
+                        await window.shippingManager.updateShiprocketStatus(shipment);
+                    }
+
+                    // Reload data and refresh display
+                    setTimeout(() => {
+                        window.adminPanel.loadAllData();
+                        document.getElementById('trackingInput').value = orderId;
+                        trackShipment();
+                    }, 1000);
+                }
+            }
+        }
+
+        function linkTrackingToOrder(trackingId) {
+            const orderId = prompt('Enter the Order ID to link this tracking number to:');
+            if (orderId && window.shippingManager) {
+                window.shippingManager.addIndiaPostTracking(orderId, trackingId).then(success => {
+                    if (success) {
+                        alert('Tracking linked successfully!');
+                        window.adminPanel.loadAllData();
+                    } else {
+                        alert('Failed to link tracking. Order not found.');
+                    }
+                });
             }
         }
 

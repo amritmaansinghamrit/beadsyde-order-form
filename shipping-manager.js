@@ -12,8 +12,9 @@ class BeadsydeShippingManager {
         };
 
         this.indiaPostConfig = {
-            baseURL: 'https://api.indiapost.gov.in', // Replace with actual API
-            apiKey: 'your-india-post-api-key' // Replace with actual
+            baseURL: 'https://speedpost-tracking-api-for-india-post.p.rapidapi.com',
+            apiKey: 'a991f7753fmsh09bbc3104956af7p1900c2jsn4a0b948c5457',
+            host: 'speedpost-tracking-api-for-india-post.p.rapidapi.com'
         };
 
         this.whatsappConfig = {
@@ -415,43 +416,86 @@ class BeadsydeShippingManager {
 
     async updateIndiaPostStatus(shipment) {
         try {
-            // India Post tracking API call
+            // India Post Speed Post tracking API call via RapidAPI
+            const formData = new URLSearchParams();
+            formData.append('consignment_number', shipment.indiaPostTrackingId);
+            formData.append('include_pincode_info', 'false');
+
             const response = await fetch(
-                `${this.indiaPostConfig.baseURL}/api/v1/trackitem`,
+                `${this.indiaPostConfig.baseURL}/track/consignment`,
                 {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.indiaPostConfig.apiKey}`
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'x-rapidapi-host': this.indiaPostConfig.host,
+                        'x-rapidapi-key': this.indiaPostConfig.apiKey
                     },
-                    body: JSON.stringify({
-                        trackingNo: shipment.indiaPostTrackingId
-                    })
+                    body: formData
                 }
             );
 
             const data = await response.json();
 
-            if (response.ok && data.tracking) {
-                const latestStatus = data.tracking.status;
+            if (response.ok && data.success && data.data.consignment) {
+                const consignment = data.data.consignment;
+                const currentStatus = this.mapIndiaPostStatus(consignment.delivery_status);
+                const readableStatus = consignment.current_status;
 
-                if (latestStatus !== shipment.status) {
+                if (currentStatus !== shipment.status) {
                     await this.updateShipmentStatus(shipment, {
-                        status: latestStatus,
+                        status: currentStatus,
+                        readableStatus: readableStatus,
                         trackingId: shipment.indiaPostTrackingId,
                         lastUpdated: Date.now(),
-                        trackingData: data.tracking
+                        trackingData: {
+                            consignment: consignment,
+                            trackingEvents: data.data.tracking_events,
+                            deliveryStatus: consignment.delivery_status,
+                            transitDuration: consignment.transit_duration,
+                            bookedOn: consignment.booked_on,
+                            deliveredAt: consignment.delivered_at,
+                            currentLocation: this.getCurrentLocation(data.data.tracking_events)
+                        }
                     });
 
-                    // Send WhatsApp notification
-                    if (['dispatched', 'out_for_delivery', 'delivered'].includes(latestStatus)) {
-                        await this.sendDeliveryNotification(shipment, latestStatus, shipment.indiaPostTrackingId);
+                    // Send WhatsApp notification for important status changes
+                    if (['shipped', 'out_for_delivery', 'delivered'].includes(currentStatus)) {
+                        await this.sendDeliveryNotification(shipment, currentStatus, shipment.indiaPostTrackingId, {
+                            readableStatus: readableStatus,
+                            transitDuration: consignment.transit_duration,
+                            currentLocation: this.getCurrentLocation(data.data.tracking_events)
+                        });
                     }
                 }
             }
         } catch (error) {
             console.error('❌ Error updating India Post status:', error);
         }
+    }
+
+    mapIndiaPostStatus(deliveryStatus) {
+        // Map India Post statuses to our standard status codes
+        const statusMap = {
+            'ItemBooked': 'shipped',
+            'ItemDispatched': 'shipped',
+            'ItemBagged': 'shipped',
+            'ItemReceived': 'in_transit',
+            'OutForDelivery': 'out_for_delivery',
+            'ItemDelivered': 'delivered',
+            'ItemReturnedToSender': 'returned',
+            'ItemReturned': 'returned',
+            'DispatchedToBO': 'out_for_delivery'
+        };
+
+        return statusMap[deliveryStatus] || 'in_transit';
+    }
+
+    getCurrentLocation(trackingEvents) {
+        if (!trackingEvents || trackingEvents.length === 0) return 'Unknown';
+
+        // Get the most recent event
+        const latestEvent = trackingEvents[0]; // Events are likely in reverse chronological order
+        return latestEvent.office || 'Unknown';
     }
 
     async updateShipmentStatus(shipment, statusUpdate) {
@@ -491,17 +535,28 @@ class BeadsydeShippingManager {
     // WHATSAPP NOTIFICATIONS
     // ==========================================
 
-    async sendDeliveryNotification(shipment, status, trackingId) {
+    async sendDeliveryNotification(shipment, status, trackingId, extraData = {}) {
         try {
+            const locationInfo = extraData.currentLocation ? `\n📍 Current Location: ${extraData.currentLocation}` : '';
+            const transitInfo = extraData.transitDuration ? `\n⏱️ Transit Duration: ${extraData.transitDuration}` : '';
+            const statusInfo = extraData.readableStatus ? `\n📦 Status: ${extraData.readableStatus}` : '';
+
             const messages = {
-                shipped: `🚚 Great news! Your Beadsyde order ${shipment.beadsydeOrderId} has been shipped!\n\n📋 Tracking ID: ${trackingId}\n\nYour beautiful infinity jewelry is on its way! 💎`,
-                out_for_delivery: `🚛 Your Beadsyde order ${shipment.beadsydeOrderId} is out for delivery!\n\n📋 Tracking: ${trackingId}\n\nGet ready to receive your stunning jewelry today! ✨`,
-                delivered: `🎉 Delivered! Your Beadsyde order ${shipment.beadsydeOrderId} has been successfully delivered!\n\n💎 We hope you love your new infinity jewelry!\n\n⭐ Please share your experience with us!`
+                shipped: `🚚 Great news! Your Beadsyde order ${shipment.beadsydeOrderId} has been shipped!\n\n📋 Tracking ID: ${trackingId}${locationInfo}${statusInfo}\n\nYour beautiful infinity jewelry is on its way! 💎\n\nTrack your order: https://www.indiapost.gov.in/VAS/Pages/IndiaPostHome.aspx`,
+
+                out_for_delivery: `🚛 Your Beadsyde order ${shipment.beadsydeOrderId} is out for delivery!\n\n📋 Tracking: ${trackingId}${locationInfo}${statusInfo}\n\nGet ready to receive your stunning jewelry today! ✨\n\nOur delivery partner will contact you soon.`,
+
+                delivered: `🎉 Delivered! Your Beadsyde order ${shipment.beadsydeOrderId} has been successfully delivered!\n\n💎 We hope you love your new infinity jewelry!${transitInfo}\n\n⭐ Please share your experience with us!\n\n📸 Tag us @beadsyde in your photos!`,
+
+                returned: `📮 Update: Your Beadsyde order ${shipment.beadsydeOrderId} is being returned to sender.\n\n📋 Tracking: ${trackingId}${statusInfo}\n\nPlease contact us to resolve any delivery issues.\n\n📞 WhatsApp: 918104563011`,
+
+                in_transit: `🚛 Your Beadsyde order ${shipment.beadsydeOrderId} is in transit.\n\n📋 Tracking: ${trackingId}${locationInfo}${statusInfo}\n\nYour jewelry is moving closer to you! 💎`
             };
 
-            const message = messages[status] || `📦 Update: Your Beadsyde order ${shipment.beadsydeOrderId} status: ${status}\n\nTracking: ${trackingId}`;
+            const defaultMessage = `📦 Update: Your Beadsyde order ${shipment.beadsydeOrderId}\n\n📋 Tracking: ${trackingId}${statusInfo}${locationInfo}\n\nStatus: ${status}`;
+            const message = messages[status] || defaultMessage;
 
-            // Create WhatsApp link for manual sending (or integrate with WhatsApp Business API)
+            // Create WhatsApp link for manual sending
             const whatsappUrl = `https://api.whatsapp.com/send/?phone=${shipment.customerPhone}&text=${encodeURIComponent(message)}`;
 
             // Log for admin action
@@ -516,6 +571,9 @@ class BeadsydeShippingManager {
                 status: status,
                 message: message,
                 whatsappUrl: whatsappUrl,
+                trackingId: trackingId,
+                provider: shipment.indiaPostTrackingId ? 'India Post' : 'Shiprocket',
+                extraData: extraData,
                 timestamp: Date.now(),
                 sent: false
             });
@@ -594,24 +652,115 @@ class BeadsydeShippingManager {
     async addIndiaPostTracking(orderId, trackingId) {
         try {
             const shipments = JSON.parse(localStorage.getItem('beadsyde_shipments') || '[]');
-            const shipment = shipments.find(s => s.beadsydeOrderId === orderId);
+            let shipment = shipments.find(s => s.beadsydeOrderId === orderId);
 
-            if (shipment) {
-                shipment.indiaPostTrackingId = trackingId;
-                shipment.provider = 'indiapost';
-                shipment.status = 'shipped';
-                shipment.lastUpdated = Date.now();
+            if (!shipment) {
+                // Create new shipment record if it doesn't exist
+                const orders = JSON.parse(localStorage.getItem('beadsyde_orders') || '[]');
+                const order = orders.find(o => o.orderId === orderId);
 
-                localStorage.setItem('beadsyde_shipments', JSON.stringify(shipments));
-
-                console.log(`📮 India Post tracking added for order ${orderId}: ${trackingId}`);
-                return true;
+                if (order) {
+                    shipment = {
+                        beadsydeOrderId: orderId,
+                        customerPhone: order.customerPhone,
+                        createdAt: Date.now()
+                    };
+                    shipments.push(shipment);
+                } else {
+                    return false;
+                }
             }
 
-            return false;
+            shipment.indiaPostTrackingId = trackingId;
+            shipment.provider = 'indiapost';
+            shipment.status = 'shipped';
+            shipment.lastUpdated = Date.now();
+
+            localStorage.setItem('beadsyde_shipments', JSON.stringify(shipments));
+
+            // Immediately fetch tracking status
+            await this.updateIndiaPostStatus(shipment);
+
+            console.log(`📮 India Post tracking added for order ${orderId}: ${trackingId}`);
+            return true;
         } catch (error) {
             console.error('❌ Error adding India Post tracking:', error);
             return false;
+        }
+    }
+
+    async testIndiaPostAPI(trackingId) {
+        try {
+            const formData = new URLSearchParams();
+            formData.append('consignment_number', trackingId);
+            formData.append('include_pincode_info', 'true');
+
+            const response = await fetch(
+                `${this.indiaPostConfig.baseURL}/track/consignment`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'x-rapidapi-host': this.indiaPostConfig.host,
+                        'x-rapidapi-key': this.indiaPostConfig.apiKey
+                    },
+                    body: formData
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                console.log('✅ India Post API test successful:', data);
+                return {
+                    success: true,
+                    data: data.data,
+                    message: 'API connection successful'
+                };
+            } else {
+                console.error('❌ India Post API test failed:', data);
+                return {
+                    success: false,
+                    error: data.message || 'Unknown error',
+                    message: 'API connection failed'
+                };
+            }
+        } catch (error) {
+            console.error('❌ India Post API test error:', error);
+            return {
+                success: false,
+                error: error.message,
+                message: 'Network or API error'
+            };
+        }
+    }
+
+    async getDetailedTrackingInfo(trackingId, isIndiaPost = true) {
+        try {
+            if (isIndiaPost) {
+                const result = await this.testIndiaPostAPI(trackingId);
+                if (result.success) {
+                    return {
+                        success: true,
+                        provider: 'India Post',
+                        trackingId: trackingId,
+                        currentStatus: result.data.consignment.current_status,
+                        deliveryStatus: result.data.consignment.delivery_status,
+                        transitDuration: result.data.consignment.transit_duration,
+                        bookedOn: result.data.consignment.booked_on,
+                        deliveredAt: result.data.consignment.delivered_at,
+                        currentLocation: this.getCurrentLocation(result.data.tracking_events),
+                        origin: result.data.consignment.origin_pincode,
+                        destination: result.data.consignment.destination_pincode,
+                        trackingEvents: result.data.tracking_events,
+                        consignmentDetails: result.data.consignment
+                    };
+                }
+            }
+            return { success: false, message: 'Tracking information not found' };
+        } catch (error) {
+            console.error('❌ Error getting detailed tracking info:', error);
+            return { success: false, error: error.message };
         }
     }
 }

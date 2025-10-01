@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beadsyde Shipping Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Firebase for Real-time Database -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase, ref, onValue, query, orderByChild, equalTo, get, update, push } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAruBAoy7ND1n6TyPGu0wlfZYc1czWRcfA",
+            authDomain: "beadsyde-rashi.firebaseapp.com",
+            databaseURL: "https://beadsyde-rashi-default-rtdb.firebaseio.com",
+            projectId: "beadsyde-rashi",
+            storageBucket: "beadsyde-rashi.firebasestorage.app",
+            messagingSenderId: "577212292475",
+            appId: "1:577212292475:web:eb53d288cb99d6937b31de",
+            measurementId: "G-ZEEWPYS2LD"
+        };
+
+        // Initialize Firebase
+        let app, database;
+        try {
+            app = initializeApp(firebaseConfig);
+            database = getDatabase(app);
+            window.firebaseDB = database;
+            window.firebaseImports = { ref, onValue, query, orderByChild, equalTo, get, update, push };
+            console.log('🔥 Firebase initialized for shipping management');
+        } catch (error) {
+            console.warn('🔥 Firebase initialization failed:', error);
+            window.firebaseDB = null;
+        }
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2E5BBA, #667eea);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .nav-tabs {
+            background: white;
+            padding: 0 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 0;
+        }
+
+        .nav-tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab.active {
+            color: #2E5BBA;
+            border-bottom-color: #2E5BBA;
+            background: #f8f9fa;
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: #f1f3f4;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2E5BBA;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card h3 {
+            background: #2E5BBA;
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-shipped { background: #d1ecf1; color: #0c5460; }
+        .status-delivered { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2E5BBA;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3f80;
+        }
+
+        .btn-success {
+            background: #10B981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2E5BBA;
+            box-shadow: 0 0 0 2px rgba(46, 91, 186, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .notification-item {
+            background: #f8f9fa;
+            border: 1px solid #e1e1e1;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .notification-meta {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-message {
+            background: white;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 0.5rem 0;
+            border-left: 4px solid #2E5BBA;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+                padding: 0 1rem;
+            }
+
+            .nav-tab {
+                padding: 0.75rem 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-shipping-fast"></i> Beadsyde Shipping Management</h1>
+        <p>Automated order processing, tracking & customer notifications</p>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('orders')">
+            <i class="fas fa-box"></i> Orders & Shipments
+        </button>
+        <button class="nav-tab" onclick="switchTab('notifications')">
+            <i class="fas fa-bell"></i> Notifications
+        </button>
+        <button class="nav-tab" onclick="switchTab('tracking')">
+            <i class="fas fa-route"></i> Tracking
+        </button>
+        <button class="nav-tab" onclick="switchTab('settings')">
+            <i class="fas fa-cog"></i> Settings
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Orders Tab -->
+        <div id="orders" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalOrders">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingShipments">0</div>
+                    <div class="stat-label">Pending Shipments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="shippedOrders">0</div>
+                    <div class="stat-label">Shipped Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="deliveredOrders">0</div>
+                    <div class="stat-label">Delivered Orders</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-list"></i> Recent Orders</h3>
+                <div class="card-content">
+                    <div style="margin-bottom: 1rem;">
+                        <button class="btn btn-primary" onclick="refreshOrders()">
+                            <i class="fas fa-sync-alt"></i> Refresh Orders
+                        </button>
+                        <button class="btn btn-success" onclick="processAllPendingOrders()">
+                            <i class="fas fa-play"></i> Process All Pending
+                        </button>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Shiprocket ID</th>
+                                <th>Tracking</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr>
+                                <td colspan="7">Loading orders...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div id="notifications" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-envelope"></i> WhatsApp Delivery Notifications</h3>
+                <div class="card-content">
+                    <div style="margin-bottom: 1rem;">
+                        <button class="btn btn-primary" onclick="refreshNotifications()">
+                            <i class="fas fa-sync-alt"></i> Refresh Notifications
+                        </button>
+                    </div>
+                    <div id="notificationsList">
+                        Loading notifications...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracking Tab -->
+        <div id="tracking" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-search"></i> Track Shipments</h3>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="trackingInput">Enter Order ID or Tracking Number:</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <input type="text" id="trackingInput" class="form-control" placeholder="ORD-123456789 or tracking number">
+                            <button class="btn btn-primary" onclick="trackShipment()">
+                                <i class="fas fa-search"></i> Track
+                            </button>
+                        </div>
+                    </div>
+                    <div id="trackingResults"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-plus"></i> Add India Post Tracking</h3>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="orderIdInput">Order ID:</label>
+                        <input type="text" id="orderIdInput" class="form-control" placeholder="ORD-123456789">
+                    </div>
+                    <div class="form-group">
+                        <label for="indiaPostTrackingInput">India Post Tracking ID:</label>
+                        <input type="text" id="indiaPostTrackingInput" class="form-control" placeholder="RR123456789IN">
+                    </div>
+                    <button class="btn btn-success" onclick="addIndiaPostTracking()">
+                        <i class="fas fa-plus"></i> Add Tracking
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="card">
+                <h3><i class="fas fa-cog"></i> Shiprocket Configuration</h3>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="shiprocketEmail">Shiprocket Email:</label>
+                        <input type="email" id="shiprocketEmail" class="form-control" placeholder="your-email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="shiprocketPassword">Shiprocket Password:</label>
+                        <input type="password" id="shiprocketPassword" class="form-control" placeholder="Your password">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveShiprocketConfig()">
+                        <i class="fas fa-save"></i> Save Configuration
+                    </button>
+                    <button class="btn btn-warning" onclick="testShiprocketConnection()">
+                        <i class="fas fa-test-tube"></i> Test Connection
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-phone"></i> WhatsApp Configuration</h3>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="whatsappNumber">Business WhatsApp Number:</label>
+                        <input type="text" id="whatsappNumber" class="form-control" value="918104563011">
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsappApiToken">WhatsApp API Token (Optional):</label>
+                        <input type="text" id="whatsappApiToken" class="form-control" placeholder="Your WhatsApp Business API token">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveWhatsAppConfig()">
+                        <i class="fas fa-save"></i> Save Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual Shipping Modal -->
+    <div id="manualShippingModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('manualShippingModal')">&times;</span>
+            <h3>Manual Shipping Setup</h3>
+            <form id="manualShippingForm">
+                <div class="form-group">
+                    <label for="modalOrderId">Order ID:</label>
+                    <input type="text" id="modalOrderId" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="shippingProvider">Shipping Provider:</label>
+                    <select id="shippingProvider" class="form-control">
+                        <option value="shiprocket">Shiprocket</option>
+                        <option value="indiapost">India Post</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="trackingNumber">Tracking Number:</label>
+                    <input type="text" id="trackingNumber" class="form-control" placeholder="Enter tracking number">
+                </div>
+                <div class="form-group">
+                    <label for="shippingNotes">Notes:</label>
+                    <textarea id="shippingNotes" class="form-control" rows="3" placeholder="Any additional notes..."></textarea>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-success" onclick="saveManualShipping()">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    <button type="button" class="btn" onclick="closeModal('manualShippingModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include shipping manager -->
+    <script src="shipping-manager.js"></script>
+
+    <script>
+        class ShippingAdminPanel {
+            constructor() {
+                this.currentTab = 'orders';
+                this.orders = [];
+                this.shipments = [];
+                this.notifications = [];
+                this.shippingManager = null;
+
+                this.init();
+            }
+
+            async init() {
+                console.log('🚀 Initializing Shipping Admin Panel...');
+
+                // Wait for shipping manager
+                await this.waitForShippingManager();
+
+                // Load initial data
+                await this.loadAllData();
+
+                // Set up periodic refresh
+                setInterval(() => {
+                    this.loadAllData();
+                }, 30000); // Refresh every 30 seconds
+
+                console.log('✅ Shipping Admin Panel ready');
+            }
+
+            async waitForShippingManager() {
+                return new Promise((resolve) => {
+                    const checkManager = () => {
+                        if (window.shippingManager) {
+                            this.shippingManager = window.shippingManager;
+                            resolve();
+                        } else {
+                            setTimeout(checkManager, 100);
+                        }
+                    };
+                    checkManager();
+                });
+            }
+
+            async loadAllData() {
+                await Promise.all([
+                    this.loadOrders(),
+                    this.loadShipments(),
+                    this.loadNotifications()
+                ]);
+
+                this.updateStats();
+                this.renderCurrentTab();
+            }
+
+            async loadOrders() {
+                try {
+                    // Load from localStorage and Firebase
+                    const localOrders = JSON.parse(localStorage.getItem('beadsyde_orders') || '[]');
+                    const firebaseOrders = window.firebaseOrders || [];
+
+                    // Merge and deduplicate
+                    const allOrders = [...localOrders, ...firebaseOrders];
+                    const uniqueOrders = allOrders.filter((order, index, self) =>
+                        index === self.findIndex(o => o.orderId === order.orderId)
+                    );
+
+                    this.orders = uniqueOrders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                } catch (error) {
+                    console.error('❌ Error loading orders:', error);
+                    this.orders = [];
+                }
+            }
+
+            async loadShipments() {
+                try {
+                    this.shipments = JSON.parse(localStorage.getItem('beadsyde_shipments') || '[]');
+                } catch (error) {
+                    console.error('❌ Error loading shipments:', error);
+                    this.shipments = [];
+                }
+            }
+
+            async loadNotifications() {
+                try {
+                    this.notifications = JSON.parse(localStorage.getItem('beadsyde_notifications') || '[]');
+                } catch (error) {
+                    console.error('❌ Error loading notifications:', error);
+                    this.notifications = [];
+                }
+            }
+
+            updateStats() {
+                const pendingShipments = this.shipments.filter(s =>
+                    !['delivered', 'cancelled'].includes(s.status?.toLowerCase())
+                ).length;
+
+                const shippedOrders = this.shipments.filter(s =>
+                    ['shipped', 'out_for_delivery'].includes(s.status?.toLowerCase())
+                ).length;
+
+                const deliveredOrders = this.shipments.filter(s =>
+                    s.status?.toLowerCase() === 'delivered'
+                ).length;
+
+                document.getElementById('totalOrders').textContent = this.orders.length;
+                document.getElementById('pendingShipments').textContent = pendingShipments;
+                document.getElementById('shippedOrders').textContent = shippedOrders;
+                document.getElementById('deliveredOrders').textContent = deliveredOrders;
+            }
+
+            renderCurrentTab() {
+                switch (this.currentTab) {
+                    case 'orders':
+                        this.renderOrdersTable();
+                        break;
+                    case 'notifications':
+                        this.renderNotifications();
+                        break;
+                    case 'tracking':
+                        // Tracking tab is static
+                        break;
+                    case 'settings':
+                        this.loadSettings();
+                        break;
+                }
+            }
+
+            renderOrdersTable() {
+                const tbody = document.getElementById('ordersTableBody');
+
+                if (this.orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7">No orders found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = this.orders.map(order => {
+                    const shipment = this.shipments.find(s => s.beadsydeOrderId === order.orderId);
+                    const status = shipment?.status || 'pending';
+                    const shiprocketId = shipment?.shiprocketOrderId || '-';
+                    const tracking = shipment?.awbCode || shipment?.indiaPostTrackingId || '-';
+
+                    return `
+                        <tr>
+                            <td>${order.orderId}</td>
+                            <td>
+                                <strong>${order.customerName || 'Unknown'}</strong><br>
+                                <small>${order.customerPhone || ''}</small>
+                            </td>
+                            <td>₹${order.total || order.totalAmount || 0}</td>
+                            <td><span class="status-badge status-${status.toLowerCase()}">${status}</span></td>
+                            <td>${shiprocketId}</td>
+                            <td>${tracking}</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="viewOrderDetails('${order.orderId}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${!shipment ? `
+                                    <button class="btn btn-sm btn-success" onclick="createShipment('${order.orderId}')">
+                                        <i class="fas fa-shipping-fast"></i>
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-warning" onclick="openManualShipping('${order.orderId}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            renderNotifications() {
+                const container = document.getElementById('notificationsList');
+                const pendingNotifications = this.notifications.filter(n => !n.sent);
+
+                if (pendingNotifications.length === 0) {
+                    container.innerHTML = '<p>No pending notifications</p>';
+                    return;
+                }
+
+                container.innerHTML = pendingNotifications.map(notification => `
+                    <div class="notification-item">
+                        <div class="notification-meta">
+                            <strong>Order:</strong> ${notification.orderId} |
+                            <strong>Phone:</strong> ${notification.customerPhone} |
+                            <strong>Status:</strong> ${notification.status} |
+                            <strong>Time:</strong> ${new Date(notification.timestamp).toLocaleString()}
+                        </div>
+                        <div class="notification-message">
+                            ${notification.message}
+                        </div>
+                        <div class="actions">
+                            <a href="${notification.whatsappUrl}" target="_blank" class="btn btn-sm btn-success"
+                               onclick="markNotificationSent(${notification.timestamp})">
+                                <i class="fab fa-whatsapp"></i> Send WhatsApp
+                            </a>
+                            <button class="btn btn-sm btn-warning" onclick="copyToClipboard('${notification.message}')">
+                                <i class="fas fa-copy"></i> Copy Message
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            loadSettings() {
+                // Load saved settings
+                const shiprocketEmail = localStorage.getItem('shiprocket_email') || '';
+                const whatsappNumber = localStorage.getItem('whatsapp_number') || '918104563011';
+
+                document.getElementById('shiprocketEmail').value = shiprocketEmail;
+                document.getElementById('whatsappNumber').value = whatsappNumber;
+            }
+        }
+
+        // Global functions for UI interactions
+        function switchTab(tabName) {
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            // Update current tab
+            window.adminPanel.currentTab = tabName;
+            window.adminPanel.renderCurrentTab();
+        }
+
+        async function refreshOrders() {
+            await window.adminPanel.loadAllData();
+        }
+
+        async function processAllPendingOrders() {
+            const pendingOrders = window.adminPanel.orders.filter(order =>
+                !window.adminPanel.shipments.find(s => s.beadsydeOrderId === order.orderId)
+            );
+
+            for (const order of pendingOrders) {
+                if (window.shippingManager) {
+                    await window.shippingManager.createShiprocketOrder(order);
+                }
+            }
+
+            setTimeout(() => {
+                window.adminPanel.loadAllData();
+            }, 2000);
+        }
+
+        async function createShipment(orderId) {
+            const order = window.adminPanel.orders.find(o => o.orderId === orderId);
+            if (order && window.shippingManager) {
+                await window.shippingManager.createShiprocketOrder(order);
+                setTimeout(() => {
+                    window.adminPanel.loadAllData();
+                }, 1000);
+            }
+        }
+
+        function viewOrderDetails(orderId) {
+            const order = window.adminPanel.orders.find(o => o.orderId === orderId);
+            if (order) {
+                alert(`Order Details:\n\nOrder ID: ${order.orderId}\nCustomer: ${order.customerName}\nPhone: ${order.customerPhone}\nAddress: ${order.address}\nTotal: ₹${order.total}\nItems: ${order.items?.length || 0}`);
+            }
+        }
+
+        function openManualShipping(orderId) {
+            document.getElementById('modalOrderId').value = orderId;
+            document.getElementById('manualShippingModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        async function saveManualShipping() {
+            const orderId = document.getElementById('modalOrderId').value;
+            const provider = document.getElementById('shippingProvider').value;
+            const trackingNumber = document.getElementById('trackingNumber').value;
+            const notes = document.getElementById('shippingNotes').value;
+
+            if (provider === 'indiapost' && trackingNumber) {
+                if (window.shippingManager) {
+                    await window.shippingManager.addIndiaPostTracking(orderId, trackingNumber);
+                }
+            }
+
+            closeModal('manualShippingModal');
+            setTimeout(() => {
+                window.adminPanel.loadAllData();
+            }, 1000);
+        }
+
+        async function refreshNotifications() {
+            await window.adminPanel.loadNotifications();
+            window.adminPanel.renderNotifications();
+        }
+
+        async function markNotificationSent(timestamp) {
+            if (window.shippingManager) {
+                await window.shippingManager.markNotificationSent(timestamp);
+            }
+            setTimeout(() => {
+                window.adminPanel.loadNotifications();
+                window.adminPanel.renderNotifications();
+            }, 500);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Message copied to clipboard!');
+            });
+        }
+
+        async function trackShipment() {
+            const input = document.getElementById('trackingInput').value.trim();
+            const resultsDiv = document.getElementById('trackingResults');
+
+            if (!input) return;
+
+            resultsDiv.innerHTML = '<p>Searching...</p>';
+
+            // Find shipment by order ID or tracking number
+            const shipment = window.adminPanel.shipments.find(s =>
+                s.beadsydeOrderId === input ||
+                s.awbCode === input ||
+                s.indiaPostTrackingId === input
+            );
+
+            if (shipment) {
+                resultsDiv.innerHTML = `
+                    <div class="card">
+                        <h4>Shipment Found</h4>
+                        <p><strong>Order ID:</strong> ${shipment.beadsydeOrderId}</p>
+                        <p><strong>Status:</strong> <span class="status-badge status-${shipment.status?.toLowerCase()}">${shipment.status || 'Unknown'}</span></p>
+                        <p><strong>Tracking:</strong> ${shipment.awbCode || shipment.indiaPostTrackingId || 'N/A'}</p>
+                        <p><strong>Last Updated:</strong> ${shipment.lastUpdated ? new Date(shipment.lastUpdated).toLocaleString() : 'Never'}</p>
+                    </div>
+                `;
+            } else {
+                resultsDiv.innerHTML = '<p>No shipment found with this ID or tracking number.</p>';
+            }
+        }
+
+        async function addIndiaPostTracking() {
+            const orderId = document.getElementById('orderIdInput').value.trim();
+            const trackingId = document.getElementById('indiaPostTrackingInput').value.trim();
+
+            if (!orderId || !trackingId) {
+                alert('Please enter both Order ID and Tracking ID');
+                return;
+            }
+
+            if (window.shippingManager) {
+                const success = await window.shippingManager.addIndiaPostTracking(orderId, trackingId);
+                if (success) {
+                    alert('India Post tracking added successfully!');
+                    document.getElementById('orderIdInput').value = '';
+                    document.getElementById('indiaPostTrackingInput').value = '';
+                    window.adminPanel.loadAllData();
+                } else {
+                    alert('Failed to add tracking. Order not found.');
+                }
+            }
+        }
+
+        function saveShiprocketConfig() {
+            const email = document.getElementById('shiprocketEmail').value;
+            const password = document.getElementById('shiprocketPassword').value;
+
+            localStorage.setItem('shiprocket_email', email);
+            localStorage.setItem('shiprocket_password', password);
+
+            if (window.shippingManager) {
+                window.shippingManager.shiprocketConfig.email = email;
+                window.shippingManager.shiprocketConfig.password = password;
+            }
+
+            alert('Shiprocket configuration saved!');
+        }
+
+        async function testShiprocketConnection() {
+            if (window.shippingManager) {
+                const token = await window.shippingManager.authenticateShiprocket();
+                if (token) {
+                    alert('✅ Shiprocket connection successful!');
+                } else {
+                    alert('❌ Shiprocket connection failed. Check your credentials.');
+                }
+            }
+        }
+
+        function saveWhatsAppConfig() {
+            const number = document.getElementById('whatsappNumber').value;
+            const token = document.getElementById('whatsappApiToken').value;
+
+            localStorage.setItem('whatsapp_number', number);
+            localStorage.setItem('whatsapp_api_token', token);
+
+            if (window.shippingManager) {
+                window.shippingManager.whatsappConfig.businessNumber = number;
+                window.shippingManager.whatsappConfig.accessToken = token;
+            }
+
+            alert('WhatsApp configuration saved!');
+        }
+
+        // Initialize admin panel when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.adminPanel = new ShippingAdminPanel();
+        });
+    </script>
+</body>
+</html>

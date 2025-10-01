@@ -1722,22 +1722,6 @@
                 });
             }
 
-            trackPurchase(orderData) {
-                this.trackEvent('purchase', {
-                    transaction_id: orderData.orderId,
-                    value: orderData.total,
-                    currency: 'INR',
-                    items: orderData.items.map(item => ({
-                        item_id: item.id,
-                        item_name: item.name,
-                        price: item.price,
-                        quantity: item.quantity
-                    }))
-                });
-
-                // Save detailed order to database
-                this.saveOrderToDatabase(orderData);
-            }
 
             trackFormField(fieldName, fieldValue) {
                 this.trackEvent('form_field_interaction', {
@@ -1747,45 +1731,6 @@
                 });
             }
 
-            trackWhatsAppRedirect(orderData) {
-                this.trackEvent('whatsapp_redirect', {
-                    order_id: orderData.orderId,
-                    total_amount: orderData.total,
-                    items_count: orderData.items.length
-                });
-
-                // Save WhatsApp interaction
-                this.saveWhatsAppMessage(orderData);
-            }
-
-            saveOrderToDatabase(orderData) {
-                if (!this.database) return;
-
-                const orderRef = this.database.ref('orders').push();
-                orderRef.set({
-                    ...orderData,
-                    sessionId: this.sessionId,
-                    userId: this.userId,
-                    timestamp: Date.now(),
-                    deviceInfo: this.getDeviceInfo()
-                }).catch(error => console.error('Database save failed:', error));
-            }
-
-            saveWhatsAppMessage(orderData) {
-                if (!this.database) return;
-
-                const messageRef = this.database.ref('whatsapp_messages').push();
-                messageRef.set({
-                    orderId: orderData.orderId,
-                    customerName: orderData.customer?.name,
-                    customerPhone: orderData.customer?.phone,
-                    totalAmount: orderData.total,
-                    items: orderData.items,
-                    sessionId: this.sessionId,
-                    userId: this.userId,
-                    timestamp: Date.now()
-                }).catch(error => console.error('WhatsApp message save failed:', error));
-            }
 
             trackSessionDuration() {
                 setInterval(() => {
@@ -2774,6 +2719,22 @@ Share payment screenshot to confirm your order!`;
                     } catch (analyticsError) {
                         console.warn('Analytics tracking failed:', analyticsError);
                         // Don't let analytics errors block the order
+                    }
+
+                    // 🚢 SHIPPING: Auto-create Shiprocket order
+                    try {
+                        if (window.shippingManager) {
+                            console.log('🚢 Processing order for shipping:', orderData.orderId);
+                            // Process order in background (don't block WhatsApp redirect)
+                            setTimeout(() => {
+                                window.shippingManager.createShiprocketOrder(orderData);
+                            }, 2000);
+                        } else {
+                            console.warn('⚠️ Shipping manager not available');
+                        }
+                    } catch (shippingError) {
+                        console.warn('Shipping processing failed:', shippingError);
+                        // Don't let shipping errors block the order
                     }
 
                     // Generate WhatsApp message with UPI link included

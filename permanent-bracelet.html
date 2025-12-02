@@ -508,6 +508,25 @@
         let currentSlide = 0;
         const totalSlides = 6;
 
+        // Randomize carousel images on page load
+        function shuffleCarouselItems() {
+            const carouselInner = document.getElementById('carouselInner');
+            const items = Array.from(carouselInner.children);
+
+            // Fisher-Yates shuffle algorithm
+            for (let i = items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [items[i], items[j]] = [items[j], items[i]];
+            }
+
+            // Clear and re-append shuffled items
+            carouselInner.innerHTML = '';
+            items.forEach(item => carouselInner.appendChild(item));
+        }
+
+        // Shuffle on page load
+        shuffleCarouselItems();
+
         // Create dots
         const dotsContainer = document.getElementById('carouselDots');
         for (let i = 0; i < totalSlides; i++) {
@@ -573,11 +592,20 @@
 
         Cal.ns["permanent-bracelet-slot"]("inline", {
             elementOrSelector:"#my-cal-inline-permanent-bracelet-slot",
-            config: {"layout":"month_view"},
+            config: {
+                "layout":"month_view",
+                "timezone":"Asia/Kolkata"
+            },
             calLink: "beadsyde-hjkmp3/permanent-bracelet-slot",
         });
 
-        Cal.ns["permanent-bracelet-slot"]("ui", {"hideEventTypeDetails":false,"layout":"month_view"});
+        Cal.ns["permanent-bracelet-slot"]("ui", {
+            "hideEventTypeDetails":true,
+            "layout":"month_view",
+            "styles":{
+                "branding":{"brandColor":"#2E5BBA"}
+            }
+        });
 
         // Track successful bookings with Google Analytics
         Cal.ns["permanent-bracelet-slot"]("on", {
@@ -601,6 +629,17 @@
                 'page_location': window.location.href
             });
         }
+
+        // Add custom CSS to hide branding elements in iframe
+        setTimeout(() => {
+            const style = document.createElement('style');
+            style.textContent = `
+                iframe[src*="cal.com"] {
+                    pointer-events: auto;
+                }
+            `;
+            document.head.appendChild(style);
+        }, 1000);
     </script>
 </body>
 </html>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Permanent Bracelets — Beadsyde</title>
-    <link href="https://fonts.googleapis.com/css2?family=Daydream&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <title>Beadsyde - Permanent Bracelets</title>
+    <link href="https://fonts.googleapis.com/css2?family=Daydream&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Google Analytics 4 -->
@@ -21,52 +21,88 @@
             --primary-blue: #2E5BBA;
             --neutral-beige: #F5F1E8;
             --pure-white: #FFFFFF;
-            --text-dark: #0a0a0a;
-            --text-medium: #3a3a3a;
-            --text-light: #7a7a7a;
-            --border-light: #e8e8e8;
-            --transition: all 0.15s ease;
+            --text-dark: #1a1a1a;
+            --text-medium: #4a4a4a;
+            --text-light: #888;
+            --border-light: #e1e1e1;
+            --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 8px;
+            --transition: all 0.2s ease;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: #fafafa;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--neutral-beige);
             color: var(--text-dark);
-            line-height: 1.4;
-            font-weight: 300;
-            letter-spacing: 0.02em;
+            line-height: 1.5;
+            padding: 15px;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('images/beadsyde background.jpg') repeat;
+            background-size: 500px 500px;
+            filter: blur(0.8px);
+            opacity: 0.18;
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(46, 91, 186, 0.02), rgba(176, 196, 255, 0.03));
+            z-index: -1;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
-            background: white;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(8px);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 20px rgba(46, 91, 186, 0.08);
+            overflow: hidden;
         }
 
         /* Header */
         .header {
-            background: white;
-            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--pure-white), #fafbff);
+            padding: 15px 25px;
+            text-align: center;
             border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .logo {
-            width: 32px;
-            height: 32px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             overflow: hidden;
+            box-shadow: 0 2px 8px rgba(46, 91, 186, 0.15);
+            border: 2px solid white;
         }
 
         .logo img {
@@ -77,44 +113,46 @@
 
         .brand-name {
             font-family: 'Daydream', cursive;
-            font-size: 1.4em;
-            color: var(--text-dark);
+            font-size: 1.8em;
+            color: var(--primary-blue);
             margin: 0;
-            letter-spacing: 0.02em;
-            font-weight: 400;
+            letter-spacing: -0.01em;
         }
 
         /* Main Content */
         .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            min-height: calc(100vh - 60px);
+            padding: 30px;
         }
 
-        /* Left - Carousel */
-        .carousel-section {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow: hidden;
-            background: #fafafa;
+        /* Product Display - Side by Side */
+        .product-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 35px;
+            align-items: start;
+        }
+
+        /* Carousel - Left Side */
+        .carousel-container {
+            position: relative;
         }
 
         .carousel {
             position: relative;
-            height: 100%;
             overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-soft);
         }
 
         .carousel-inner {
             display: flex;
-            height: 100%;
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s ease-in-out;
         }
 
         .carousel-item {
             min-width: 100%;
-            height: 100%;
+            aspect-ratio: 1;
         }
 
         .carousel-item img {
@@ -127,10 +165,10 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
@@ -138,245 +176,244 @@
             justify-content: center;
             transition: var(--transition);
             z-index: 10;
-            opacity: 0.6;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
         .carousel-nav:hover {
-            opacity: 1;
+            background: white;
+            transform: translateY(-50%) scale(1.05);
         }
 
-        .carousel-nav.prev { left: 20px; }
-        .carousel-nav.next { right: 20px; }
+        .carousel-nav.prev {
+            left: 10px;
+        }
+
+        .carousel-nav.next {
+            right: 10px;
+        }
 
         .carousel-nav i {
-            color: var(--text-dark);
-            font-size: 0.85em;
+            color: var(--primary-blue);
+            font-size: 0.9em;
         }
 
         .carousel-dots {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
             display: flex;
-            gap: 8px;
-            z-index: 10;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
         }
 
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
+            background: var(--border-light);
             cursor: pointer;
             transition: var(--transition);
         }
 
         .dot.active {
-            background: white;
+            background: var(--primary-blue);
+            transform: scale(1.3);
         }
 
-        /* Right - Product Info */
-        .product-section {
-            padding: 50px 60px;
-            overflow-y: auto;
-            height: 100vh;
+        /* Product Info - Right Side */
+        .product-info {
+            padding-top: 10px;
         }
 
-        .product-header {
-            margin-bottom: 30px;
-            padding-bottom: 25px;
-            border-bottom: 1px solid var(--border-light);
-        }
-
-        .product-title {
-            font-size: 1.9em;
-            font-weight: 200;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .product-subtitle {
-            font-size: 0.95em;
-            color: var(--text-medium);
-            margin-bottom: 18px;
-            font-weight: 300;
-            line-height: 1.5;
-        }
-
-        .price-tag {
-            display: inline-block;
-            font-size: 1.5em;
-            color: var(--text-dark);
+        .page-title {
+            font-size: 1.6em;
             font-weight: 600;
-            letter-spacing: 0.03em;
-            margin-bottom: 15px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
         }
 
-        .highlight-badge {
-            display: inline-block;
-            background: #f0f4ff;
+        .page-title .sparkle {
             color: var(--primary-blue);
-            padding: 8px 16px;
-            border-radius: 2px;
-            font-size: 0.75em;
-            font-weight: 500;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .page-subtitle {
+            font-size: 0.9em;
+            color: var(--text-medium);
+            margin-bottom: 20px;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+
+        .product-description {
+            color: var(--text-medium);
+            font-size: 0.85em;
+            line-height: 1.7;
             margin-bottom: 20px;
         }
 
-        .cta-button {
-            width: 100%;
-            padding: 14px 0;
-            background: var(--text-dark);
-            color: white;
-            border: none;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.85em;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-bottom: 25px;
-        }
-
-        .cta-button:hover {
-            background: var(--primary-blue);
-        }
-
-        .product-details {
-            margin-bottom: 35px;
-        }
-
-        .detail-section {
-            margin-bottom: 25px;
-        }
-
-        .detail-title {
-            font-size: 0.75em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-        }
-
-        .detail-content {
-            font-size: 0.9em;
-            color: var(--text-medium);
-            line-height: 1.7;
-            font-weight: 300;
-        }
-
-        .detail-content ul {
+        .product-features {
             list-style: none;
             padding: 0;
+            margin-bottom: 20px;
         }
 
-        .detail-content li {
+        .product-features li {
+            font-size: 0.85em;
+            color: var(--text-medium);
             margin-bottom: 8px;
-            padding-left: 15px;
+            padding-left: 20px;
             position: relative;
-            font-size: 0.9em;
         }
 
-        .detail-content li:before {
-            content: "—";
+        .product-features li:before {
+            content: "•";
             position: absolute;
             left: 0;
+            color: var(--primary-blue);
+            font-size: 1.2em;
+        }
+
+        .availability-note {
             color: var(--text-light);
+            font-size: 0.75em;
+            font-style: italic;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-light);
         }
 
         /* Booking Section */
         .booking-section {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid var(--border-light);
+            background: linear-gradient(135deg, #fafbff, var(--pure-white));
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-light);
         }
 
         .booking-title {
-            font-size: 0.75em;
+            text-align: center;
+            font-size: 1.2em;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
             color: var(--text-dark);
-            margin-bottom: 20px;
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
         }
 
+        .booking-subtitle {
+            text-align: center;
+            color: var(--text-medium);
+            margin-bottom: 20px;
+            font-size: 0.8em;
+            font-weight: 400;
+        }
+
+        /* Cal.com Embed - Smaller */
         .cal-embed-container {
             width: 100%;
-            min-height: 500px;
-            margin-bottom: 30px;
+            min-height: 450px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(46, 91, 186, 0.02), rgba(176, 196, 255, 0.02));
+        }
+
+        .cal-embed-container iframe {
+            border: none;
+            background: transparent;
         }
 
         /* Responsive */
-        @media (max-width: 1024px) {
-            .content {
+        @media (max-width: 900px) {
+            .product-display {
                 grid-template-columns: 1fr;
+                gap: 25px;
             }
 
-            .carousel-section {
-                position: relative;
-                height: 70vh;
-            }
-
-            .product-section {
-                height: auto;
-                padding: 40px 30px;
+            .product-info {
+                padding-top: 0;
             }
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
             .header {
-                padding: 10px 20px;
+                padding: 12px 20px;
             }
 
             .brand-name {
-                font-size: 1.2em;
+                font-size: 1.6em;
             }
 
             .logo {
+                width: 36px;
+                height: 36px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .product-display {
+                gap: 20px;
+            }
+
+            .page-title {
+                font-size: 1.4em;
+            }
+
+            .page-subtitle {
+                font-size: 0.85em;
+            }
+
+            .carousel-nav {
                 width: 28px;
                 height: 28px;
             }
 
-            .carousel-section {
-                height: 60vh;
+            .carousel-nav.prev {
+                left: 8px;
             }
 
-            .product-section {
-                padding: 30px 25px;
+            .carousel-nav.next {
+                right: 8px;
             }
 
-            .product-title {
-                font-size: 1.5em;
+            .booking-section {
+                padding: 20px;
             }
 
-            .carousel-nav {
-                width: 32px;
-                height: 32px;
+            .booking-title {
+                font-size: 1.1em;
+            }
+
+            .cal-embed-container {
+                min-height: 400px;
             }
         }
 
         @media (max-width: 480px) {
-            .product-section {
-                padding: 25px 20px;
-            }
-
-            .product-title {
+            .page-title {
                 font-size: 1.3em;
             }
 
-            .price-tag {
-                font-size: 1.1em;
+            .carousel-nav {
+                width: 26px;
+                height: 26px;
             }
 
-            .carousel-section {
-                height: 50vh;
+            .carousel-nav i {
+                font-size: 0.8em;
+            }
+
+            .booking-title {
+                font-size: 1em;
+            }
+
+            .cal-embed-container {
+                min-height: 380px;
             }
         }
     </style>
@@ -385,85 +422,88 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">
-                <img src="images/beadsyde logo.jpg" alt="Beadsyde">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="images/beadsyde logo.jpg" alt="Beadsyde">
+                </div>
+                <h1 class="brand-name">Beadsyde</h1>
             </div>
-            <h1 class="brand-name">Beadsyde</h1>
         </div>
 
         <!-- Main Content -->
         <div class="content">
-            <!-- Left - Carousel -->
-            <div class="carousel-section">
-                <div class="carousel">
-                    <div class="carousel-inner" id="carouselInner">
-                        <div class="carousel-item">
-                            <img src="images/IMG_0344.PNG" alt="Permanent Bracelet Design 1">
+            <!-- Product Display - Carousel Left, Info Right -->
+            <div class="product-display">
+                <!-- Carousel - Left Side -->
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <div class="carousel-inner" id="carouselInner">
+                            <div class="carousel-item">
+                                <img src="images/IMG_0344.PNG" alt="Permanent Bracelet Design 1">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0345.PNG" alt="Permanent Bracelet Design 2">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0346.PNG" alt="Permanent Bracelet Design 3">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0347.PNG" alt="Permanent Bracelet Design 4">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0348.PNG" alt="Permanent Bracelet Design 5">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0350.PNG" alt="Permanent Bracelet Design 6">
+                            </div>
                         </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0345.PNG" alt="Permanent Bracelet Design 2">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0346.PNG" alt="Permanent Bracelet Design 3">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0347.PNG" alt="Permanent Bracelet Design 4">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0348.PNG" alt="Permanent Bracelet Design 5">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0350.PNG" alt="Permanent Bracelet Design 6">
-                        </div>
+                        <button class="carousel-nav prev" onclick="moveSlide(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="carousel-nav next" onclick="moveSlide(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                    <button class="carousel-nav prev" onclick="moveSlide(-1)">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-nav next" onclick="moveSlide(1)">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
                     <div class="carousel-dots" id="carouselDots"></div>
+                </div>
+
+                <!-- Product Info - Right Side -->
+                <div class="product-info">
+                    <h2 class="page-title">
+                        <span class="sparkle">✨</span> Permanent Bracelets
+                    </h2>
+                    <p class="page-subtitle">
+                        A forever piece, custom-fitted just for you
+                    </p>
+
+                    <div class="product-description">
+                        <p>Experience the beauty of a permanent bracelet — a delicate chain designed to stay with you, symbolizing lasting memories, friendships, or self-love.</p>
+                    </div>
+
+                    <ul class="product-features">
+                        <li>Choose from multiple elegant chain designs</li>
+                        <li>Custom-fitted to your wrist for perfect comfort</li>
+                        <li>No clasp — seamless and effortless to wear</li>
+                        <li>Appointment takes just 10-15 minutes</li>
+                        <li>Bring friends or family for a shared experience</li>
+                    </ul>
+
+                    <p class="availability-note">
+                        Many more designs available in-store • Visit us to see the full collection
+                    </p>
                 </div>
             </div>
 
-            <!-- Right - Product Info -->
-            <div class="product-section">
-                <div class="product-header">
-                    <h2 class="product-title">Permanent Bracelets</h2>
-                    <p class="product-subtitle">
-                        A seamless chain, custom-fitted to your wrist
-                    </p>
-                    <div class="price-tag">₹999</div>
-                    <div class="highlight-badge">Many more designs available in-store</div>
-                    <button class="cta-button" onclick="scrollToBooking()">Book Appointment</button>
-                </div>
+            <!-- Booking Section -->
+            <div class="booking-section">
+                <h3 class="booking-title">Book Your Visit</h3>
+                <p class="booking-subtitle">
+                    Schedule an appointment to choose your perfect bracelet
+                </p>
 
-                <div class="product-details">
-                    <div class="detail-section">
-                        <h3 class="detail-title">Details</h3>
-                        <div class="detail-content">
-                            <p>Experience the beauty of a permanent bracelet — a delicate chain designed to stay with you. No clasp, no fuss. Just a continuous piece that moves with you, symbolizing lasting memories, friendships, or self-love.</p>
-                        </div>
-                    </div>
-
-                    <div class="detail-section">
-                        <h3 class="detail-title">What's Included</h3>
-                        <div class="detail-content">
-                            <ul>
-                                <li>Choice of elegant chain design from our in-store collection</li>
-                                <li>Custom fitting to your exact wrist size</li>
-                                <li>Professional application (10-15 minutes)</li>
-                                <li>Aftercare guidance</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="booking-section">
-                    <h3 class="booking-title">Book Appointment</h3>
-                    <div class="cal-embed-container">
-                        <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-permanent-bracelet-slot"></div>
-                    </div>
+                <!-- Cal.com Embed -->
+                <div class="cal-embed-container">
+                    <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-permanent-bracelet-slot"></div>
                 </div>
             </div>
         </div>
@@ -485,10 +525,12 @@
                 [items[i], items[j]] = [items[j], items[i]];
             }
 
+            // Clear and re-append shuffled items
             carouselInner.innerHTML = '';
             items.forEach(item => carouselInner.appendChild(item));
         }
 
+        // Shuffle on page load
         shuffleCarouselItems();
 
         // Create dots
@@ -505,6 +547,7 @@
             const carouselInner = document.getElementById('carouselInner');
             carouselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
 
+            // Update dots
             const dots = document.querySelectorAll('.dot');
             dots.forEach((dot, index) => {
                 dot.classList.toggle('active', index === currentSlide);
@@ -523,10 +566,12 @@
             updateCarousel();
         }
 
+        // Auto-play carousel
         setInterval(() => {
             moveSlide(1);
-        }, 5000);
+        }, 4000);
 
+        // Touch/swipe support
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -537,14 +582,12 @@
 
         carousel.addEventListener('touchend', e => {
             touchEndX = e.changedTouches[0].screenX;
-            if (touchEndX < touchStartX - 50) moveSlide(1);
-            if (touchEndX > touchStartX + 50) moveSlide(-1);
+            handleSwipe();
         });
 
-        // Scroll to booking section
-        function scrollToBooking() {
-            const bookingSection = document.querySelector('.booking-section');
-            bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) moveSlide(1);
+            if (touchEndX > touchStartX + 50) moveSlide(-1);
         }
     </script>
 
@@ -564,7 +607,7 @@
         });
 
         Cal.ns["permanent-bracelet-slot"]("ui", {
-            "hideEventTypeDetails":false,
+            "hideEventTypeDetails":true,
             "layout":"month_view",
             "styles":{
                 "branding":{
@@ -574,7 +617,7 @@
             "theme":"light"
         });
 
-        // Track successful bookings
+        // Track successful bookings with Google Analytics
         Cal.ns["permanent-bracelet-slot"]("on", {
             action: "bookingSuccessful",
             callback: (e) => {
@@ -583,18 +626,30 @@
                     gtag('event', 'booking_completed', {
                         'event_category': 'Permanent Bracelet',
                         'event_label': 'Appointment Booked',
-                        'value': 999
+                        'value': 1
                     });
                 }
             }
         });
 
+        // Track page view
         if (typeof gtag !== 'undefined') {
             gtag('event', 'page_view', {
                 'page_title': 'Permanent Bracelets',
                 'page_location': window.location.href
             });
         }
+
+        // Add custom CSS to hide branding elements in iframe
+        setTimeout(() => {
+            const style = document.createElement('style');
+            style.textContent = `
+                iframe[src*="cal.com"] {
+                    pointer-events: auto;
+                }
+            `;
+            document.head.appendChild(style);
+        }, 1000);
     </script>
 </body>
 </html>

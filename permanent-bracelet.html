@@ -314,6 +314,12 @@
             min-height: 450px;
             border-radius: var(--border-radius);
             overflow: hidden;
+            background: linear-gradient(135deg, rgba(46, 91, 186, 0.02), rgba(176, 196, 255, 0.02));
+        }
+
+        .cal-embed-container iframe {
+            border: none;
+            background: transparent;
         }
 
         /* Responsive */
@@ -594,7 +600,8 @@
             elementOrSelector:"#my-cal-inline-permanent-bracelet-slot",
             config: {
                 "layout":"month_view",
-                "timezone":"Asia/Kolkata"
+                "timezone":"Asia/Kolkata",
+                "theme":"light"
             },
             calLink: "beadsyde-hjkmp3/permanent-bracelet-slot",
         });
@@ -603,8 +610,11 @@
             "hideEventTypeDetails":true,
             "layout":"month_view",
             "styles":{
-                "branding":{"brandColor":"#2E5BBA"}
-            }
+                "branding":{
+                    "brandColor":"#2E5BBA"
+                }
+            },
+            "theme":"light"
         });
 
         // Track successful bookings with Google Analytics

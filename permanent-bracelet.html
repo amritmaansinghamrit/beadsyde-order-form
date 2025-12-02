@@ -84,16 +84,22 @@
         /* Header */
         .header {
             background: linear-gradient(135deg, var(--pure-white), #f8faff);
-            padding: 30px 40px;
+            padding: 20px 40px;
             text-align: center;
             border-bottom: 1px solid var(--border-light);
         }
 
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
         .logo {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            margin: 0 auto 15px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(46, 91, 186, 0.2);
             border: 3px solid white;
@@ -107,24 +113,11 @@
 
         .brand-name {
             font-family: 'Daydream', cursive;
-            font-size: 3em;
+            font-size: 2.8em;
             color: var(--primary-blue);
-            margin-bottom: 8px;
-        }
-
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--primary-blue);
-            text-decoration: none;
-            font-size: 0.9em;
-            margin-top: 10px;
-            transition: var(--transition);
-        }
-
-        .back-link:hover {
-            gap: 12px;
+            margin: 0;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 4px rgba(46, 91, 186, 0.1);
         }
 
         /* Main Content */
@@ -358,14 +351,12 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="logo">
-                <img src="images/beadsyde logo.jpg" alt="Beadsyde">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="images/beadsyde logo.jpg" alt="Beadsyde">
+                </div>
+                <h1 class="brand-name">Beadsyde</h1>
             </div>
-            <h1 class="brand-name">Beadsyde</h1>
-            <a href="index.html" class="back-link">
-                <i class="fas fa-arrow-left"></i>
-                Back to Shop
-            </a>
         </div>
 
         <!-- Main Content -->

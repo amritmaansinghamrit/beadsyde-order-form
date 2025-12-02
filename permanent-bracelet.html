@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beadsyde - Book Your Permanent Bracelet</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Beadsyde - Permanent Bracelets</title>
     <link href="https://fonts.googleapis.com/css2?family=Daydream&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
@@ -27,14 +26,10 @@
             --text-light: #888;
             --border-light: #e1e1e1;
             --border-focus: #2E5BBA;
-            --success-green: #10B981;
-            --error-red: #EF4444;
-            --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.05);
             --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1);
-            --border-radius: 8px;
-            --border-radius-large: 12px;
-            --transition: all 0.2s ease;
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
         }
 
         * {
@@ -44,17 +39,14 @@
         }
 
         body {
-            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             background-color: var(--neutral-beige);
             color: var(--text-dark);
-            line-height: 1.5;
-            padding: 20px 20px 50px 20px;
-            font-weight: 400;
-            position: relative;
+            line-height: 1.6;
+            padding: 20px;
             min-height: 100vh;
         }
 
-        /* Full-page background with light blur and tint */
         body::before {
             content: '';
             position: fixed;
@@ -64,16 +56,11 @@
             height: 100%;
             background: url('images/beadsyde background.jpg') repeat;
             background-size: 500px 500px;
-            background-position: 0 0;
             filter: blur(0.8px);
             opacity: 0.22;
             z-index: -2;
-            image-rendering: optimizeQuality;
-            image-rendering: -webkit-optimize-contrast;
-            background-attachment: fixed;
         }
 
-        /* Light blue tint overlay */
         body::after {
             content: '';
             position: fixed;
@@ -86,59 +73,31 @@
         }
 
         .container {
-            max-width: 900px;
-            margin: 0 auto 50px auto;
+            max-width: 1000px;
+            margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
-            border-radius: var(--border-radius-large);
+            border-radius: var(--border-radius);
             box-shadow: 0 8px 32px rgba(46, 91, 186, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
             overflow: hidden;
-            position: relative;
-            z-index: 1;
         }
 
-        /* Modern Header */
+        /* Header */
         .header {
-            background: linear-gradient(135deg, var(--pure-white) 0%, #f8faff 100%);
-            padding: 12px 40px 10px;
+            background: linear-gradient(135deg, var(--pure-white), #f8faff);
+            padding: 30px 40px;
             text-align: center;
             border-bottom: 1px solid var(--border-light);
-            position: relative;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-blue), #667eea, var(--primary-blue));
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            margin-bottom: 12px;
-        }
-
-        .brand-text {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
+            margin: 0 auto 15px;
             overflow: hidden;
             box-shadow: 0 4px 20px rgba(46, 91, 186, 0.2);
-            border: 3px solid var(--pure-white);
+            border: 3px solid white;
         }
 
         .logo img {
@@ -149,235 +108,157 @@
 
         .brand-name {
             font-family: 'Daydream', cursive;
-            font-size: 2.8em;
-            font-weight: normal;
+            font-size: 3em;
             color: var(--primary-blue);
-            margin: 0;
-            letter-spacing: -0.02em;
-            text-shadow: 0 2px 4px rgba(46, 91, 186, 0.1);
-        }
-
-        .brand-subheading {
-            font-size: 1.1em;
-            color: var(--text-medium);
-            margin: 6px 0 0 0;
-            font-weight: 400;
-        }
-
-        .tagline {
-            font-size: 1.1em;
-            color: var(--text-medium);
-            font-weight: 400;
-            margin-top: 8px;
-            font-style: italic;
-        }
-
-        /* Main Content */
-        .form-section {
-            padding: 40px 40px 50px 40px;
-        }
-
-        .section-header {
-            margin-bottom: 32px;
-            text-align: center;
-        }
-
-        .section-title {
-            font-size: 2.2em;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 12px;
-            letter-spacing: -0.01em;
-        }
-
-        .permanent-text {
-            background: linear-gradient(135deg, var(--primary-blue), #667eea);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .section-subtitle {
-            color: var(--text-light);
-            font-size: 1.1em;
-            line-height: 1.6;
-        }
-
-        /* Product Showcase */
-        .product-showcase {
-            margin-bottom: 40px;
-            background: linear-gradient(135deg, #f8faff 0%, var(--pure-white) 100%);
-            border-radius: var(--border-radius-large);
-            padding: 30px;
-            border: 1px solid var(--border-light);
-        }
-
-        .showcase-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .showcase-item {
-            text-align: center;
-        }
-
-        .showcase-image {
-            width: 100%;
-            height: 200px;
-            background: var(--neutral-beige);
-            border-radius: var(--border-radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-            border: 2px dashed var(--border-light);
-            transition: var(--transition);
-        }
-
-        .showcase-image:hover {
-            border-color: var(--primary-blue);
-            transform: translateY(-2px);
-        }
-
-        .showcase-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: var(--border-radius);
-        }
-
-        .placeholder-text {
-            color: var(--text-light);
-            font-size: 0.9em;
-        }
-
-        .showcase-label {
-            font-weight: 500;
-            color: var(--text-dark);
-            font-size: 1em;
-        }
-
-        /* Info Box */
-        .info-box {
-            background: linear-gradient(135deg, rgba(46, 91, 186, 0.05), rgba(102, 126, 234, 0.05));
-            border-left: 4px solid var(--primary-blue);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            margin-bottom: 30px;
-        }
-
-        .info-box h3 {
-            color: var(--primary-blue);
-            font-size: 1.2em;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-box p {
-            color: var(--text-medium);
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-
-        .info-box ul {
-            margin-left: 20px;
-            color: var(--text-medium);
-            line-height: 1.8;
-        }
-
-        .info-box li {
             margin-bottom: 8px;
         }
 
-        /* Booking Section */
-        .booking-section {
-            background: var(--pure-white);
-            border-radius: var(--border-radius-large);
-            padding: 30px;
-            box-shadow: var(--shadow-soft);
-            border: 1px solid var(--border-light);
-        }
-
-        .booking-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .booking-header h3 {
-            font-size: 1.8em;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .booking-header p {
-            color: var(--text-light);
-            font-size: 1em;
-        }
-
-        /* Cal.com Embed Styles */
-        .cal-embed-container {
-            width: 100%;
-            min-height: 700px;
-            border-radius: var(--border-radius);
-            overflow: visible;
-            position: relative;
-        }
-
-        /* Make Cal.com embed blend with theme */
-        .cal-embed-container iframe {
-            border-radius: var(--border-radius);
-            border: 1px solid var(--border-light);
-        }
-
-        /* Back Link */
         .back-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             color: var(--primary-blue);
             text-decoration: none;
-            font-weight: 500;
-            margin-bottom: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
             transition: var(--transition);
         }
 
         .back-link:hover {
-            color: #1e4a9f;
             gap: 12px;
         }
 
-        /* Responsive Design */
+        /* Main Content */
+        .content {
+            padding: 50px 40px;
+        }
+
+        .page-title {
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .page-title .sparkle {
+            color: var(--primary-blue);
+        }
+
+        .page-subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            color: var(--text-medium);
+            margin-bottom: 50px;
+            font-weight: 300;
+        }
+
+        /* Gallery */
+        .gallery {
+            margin-bottom: 60px;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-note {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.95em;
+            font-style: italic;
+        }
+
+        /* Booking Section */
+        .booking-section {
+            background: linear-gradient(135deg, #f8faff, var(--pure-white));
+            border-radius: var(--border-radius);
+            padding: 40px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-light);
+        }
+
+        .booking-title {
+            text-align: center;
+            font-size: 2em;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .booking-subtitle {
+            text-align: center;
+            color: var(--text-medium);
+            margin-bottom: 35px;
+        }
+
+        /* Cal.com Embed */
+        .cal-embed-container {
+            width: 100%;
+            min-height: 700px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             body {
                 padding: 15px;
             }
 
-            .form-section {
-                padding: 25px 20px 35px 20px;
-            }
-
-            .section-title {
-                font-size: 1.8em;
+            .header {
+                padding: 25px 20px;
             }
 
             .brand-name {
                 font-size: 2.2em;
             }
 
-            .form-row {
-                grid-template-columns: 1fr;
+            .content {
+                padding: 35px 25px;
             }
 
-            .showcase-grid {
-                grid-template-columns: 1fr;
+            .page-title {
+                font-size: 2em;
+            }
+
+            .page-subtitle {
+                font-size: 1.1em;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
             }
 
             .booking-section {
-                padding: 20px;
+                padding: 25px 20px;
+            }
+
+            .booking-title {
+                font-size: 1.6em;
             }
 
             .cal-embed-container {
@@ -386,124 +267,84 @@
         }
 
         @media (max-width: 480px) {
-            .section-title {
-                font-size: 1.5em;
+            .page-title {
+                font-size: 1.7em;
             }
 
-            .brand-name {
-                font-size: 1.8em;
+            .page-subtitle {
+                font-size: 1em;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-title {
+                font-size: 1.4em;
             }
         }
-
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="logo-container">
-                <div class="logo">
-                    <img src="images/beadsyde logo.jpg" alt="Beadsyde Logo">
-                </div>
-                <div class="brand-text">
-                    <h1 class="brand-name">Beadsyde</h1>
-                </div>
+            <div class="logo">
+                <img src="images/beadsyde logo.jpg" alt="Beadsyde">
             </div>
-            <p class="brand-subheading">Your Personal Jewelry Destination</p>
-        </div>
-
-        <!-- Main Content -->
-        <div class="form-section">
+            <h1 class="brand-name">Beadsyde</h1>
             <a href="index.html" class="back-link">
                 <i class="fas fa-arrow-left"></i>
                 Back to Shop
             </a>
+        </div>
 
-            <div class="section-header">
-                <h2 class="section-title">
-                    <strong>Book Your <span class="permanent-text">Permanent Bracelet</span></strong>
-                </h2>
-                <p class="section-subtitle">
-                    Experience the magic of a forever bracelet - welded in our store, worn forever on your wrist
-                </p>
-            </div>
+        <!-- Main Content -->
+        <div class="content">
+            <h2 class="page-title">
+                <span class="sparkle">✨</span> Permanent Bracelets <span class="sparkle">✨</span>
+            </h2>
+            <p class="page-subtitle">
+                Choose from our beautiful collection of designs
+            </p>
 
-            <!-- Product Showcase -->
-            <div class="product-showcase">
-                <h3 style="text-align: center; color: var(--text-dark); margin-bottom: 10px;">
-                    Permanent Bracelet Collection
-                </h3>
-                <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">
-                    Choose from our stunning collection of permanent bracelets
-                </p>
-                <div class="showcase-grid">
-                    <div class="showcase-item">
-                        <div class="showcase-image">
-                            <span class="placeholder-text">
-                                <i class="fas fa-image" style="font-size: 2em; margin-bottom: 10px;"></i><br>
-                                Silver Permanent Bracelet
-                            </span>
-                        </div>
-                        <p class="showcase-label">Silver Chain</p>
+            <!-- Gallery -->
+            <div class="gallery">
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="images/IMG_0344.PNG" alt="Permanent Bracelet Design 1">
                     </div>
-                    <div class="showcase-item">
-                        <div class="showcase-image">
-                            <span class="placeholder-text">
-                                <i class="fas fa-image" style="font-size: 2em; margin-bottom: 10px;"></i><br>
-                                Gold Permanent Bracelet
-                            </span>
-                        </div>
-                        <p class="showcase-label">Gold Chain</p>
+                    <div class="gallery-item">
+                        <img src="images/IMG_0345.PNG" alt="Permanent Bracelet Design 2">
                     </div>
-                    <div class="showcase-item">
-                        <div class="showcase-image">
-                            <span class="placeholder-text">
-                                <i class="fas fa-image" style="font-size: 2em; margin-bottom: 10px;"></i><br>
-                                Rose Gold Permanent Bracelet
-                            </span>
-                        </div>
-                        <p class="showcase-label">Rose Gold Chain</p>
+                    <div class="gallery-item">
+                        <img src="images/IMG_0346.PNG" alt="Permanent Bracelet Design 3">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/IMG_0347.PNG" alt="Permanent Bracelet Design 4">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/IMG_0348.PNG" alt="Permanent Bracelet Design 5">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="images/IMG_0350.PNG" alt="Permanent Bracelet Design 6">
                     </div>
                 </div>
-            </div>
-
-            <!-- Info Box -->
-            <div class="info-box">
-                <h3>
-                    <i class="fas fa-info-circle"></i>
-                    What is a Permanent Bracelet?
-                </h3>
-                <p>
-                    A permanent bracelet is a delicate chain that is welded closed around your wrist - no clasp, no fuss, just a beautiful piece of jewelry that stays with you 24/7. It's the ultimate symbol of commitment, friendship, or self-love.
+                <p class="gallery-note">
+                    Many more designs available in-store • Visit us to see the full collection
                 </p>
-                <p><strong>What to expect during your appointment:</strong></p>
-                <ul>
-                    <li>Choose your chain style (silver, gold, or rose gold)</li>
-                    <li>We'll measure and fit the bracelet perfectly to your wrist</li>
-                    <li>Using a safe, painless welding process, we'll close the chain</li>
-                    <li>Walk out with your forever bracelet! The entire process takes about 10-15 minutes</li>
-                </ul>
             </div>
 
-            <!-- Booking Section with Cal.com -->
+            <!-- Booking Section -->
             <div class="booking-section">
-                <div class="booking-header">
-                    <h3>Schedule Your Appointment</h3>
-                    <p>Choose your preferred date and time from available slots</p>
-                </div>
+                <h3 class="booking-title">Book Your Visit</h3>
+                <p class="booking-subtitle">
+                    Schedule an appointment to choose your perfect bracelet
+                </p>
 
                 <!-- Cal.com Embed -->
                 <div class="cal-embed-container">
-                    <!-- Cal inline embed code begins -->
                     <div style="width:100%;height:100%;overflow:scroll" id="my-cal-inline-permanent-bracelet-slot"></div>
-                    <!-- Cal inline embed code ends -->
-                </div>
-
-                <div style="margin-top: 20px; padding: 16px; background: #f8faff; border-radius: 8px; text-align: center;">
-                    <p style="color: var(--text-medium); font-size: 0.95em; margin: 0;">
-                        <strong>📋 Booking Form Fields:</strong> When you click a time slot, Cal.com will ask for:<br>
-                        💫 Full Name &nbsp;|&nbsp; 📞 Contact Number &nbsp;|&nbsp; 👯 Number of People &nbsp;|&nbsp; 💬 Special Requests
-                    </p>
                 </div>
             </div>
         </div>
@@ -527,22 +368,20 @@
             action: "bookingSuccessful",
             callback: (e) => {
                 console.log("✅ Booking successful!", e.detail);
-
-                // Track with Google Analytics
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'booking_completed', {
                         'event_category': 'Permanent Bracelet',
-                        'event_label': 'Cal.com Booking',
+                        'event_label': 'Appointment Booked',
                         'value': 1
                     });
                 }
             }
         });
 
-        // Track when user views the calendar
+        // Track page view
         if (typeof gtag !== 'undefined') {
             gtag('event', 'page_view', {
-                'page_title': 'Permanent Bracelet Booking',
+                'page_title': 'Permanent Bracelets',
                 'page_location': window.location.href
             });
         }

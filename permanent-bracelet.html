@@ -72,7 +72,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.97);
             backdrop-filter: blur(8px);
@@ -121,41 +121,25 @@
 
         /* Main Content */
         .content {
-            padding: 25px;
+            padding: 30px;
         }
 
-        .page-title {
-            text-align: center;
-            font-size: 1.4em;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 6px;
-            letter-spacing: -0.02em;
+        /* Product Display - Side by Side */
+        .product-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 35px;
+            align-items: start;
         }
 
-        .page-title .sparkle {
-            color: var(--primary-blue);
-            font-size: 0.9em;
-        }
-
-        .page-subtitle {
-            text-align: center;
-            font-size: 0.85em;
-            color: var(--text-medium);
-            margin-bottom: 25px;
-            font-weight: 400;
-            letter-spacing: 0.01em;
-        }
-
-        /* Carousel */
+        /* Carousel - Left Side */
         .carousel-container {
-            margin-bottom: 30px;
+            position: relative;
         }
 
         .carousel {
             position: relative;
-            max-width: 450px;
-            margin: 0 auto;
             overflow: hidden;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-soft);
@@ -234,20 +218,75 @@
             transform: scale(1.3);
         }
 
-        .carousel-note {
-            text-align: center;
+        /* Product Info - Right Side */
+        .product-info {
+            padding-top: 10px;
+        }
+
+        .page-title {
+            font-size: 1.6em;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .page-title .sparkle {
+            color: var(--primary-blue);
+            font-size: 0.9em;
+        }
+
+        .page-subtitle {
+            font-size: 0.9em;
+            color: var(--text-medium);
+            margin-bottom: 20px;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+        }
+
+        .product-description {
+            color: var(--text-medium);
+            font-size: 0.85em;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .product-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+
+        .product-features li {
+            font-size: 0.85em;
+            color: var(--text-medium);
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .product-features li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--primary-blue);
+            font-size: 1.2em;
+        }
+
+        .availability-note {
             color: var(--text-light);
             font-size: 0.75em;
             font-style: italic;
-            margin-top: 10px;
-            letter-spacing: 0.02em;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-light);
         }
 
         /* Booking Section */
         .booking-section {
             background: linear-gradient(135deg, #fafbff, var(--pure-white));
             border-radius: var(--border-radius);
-            padding: 20px;
+            padding: 25px;
             box-shadow: var(--shadow-soft);
             border: 1px solid var(--border-light);
         }
@@ -264,20 +303,31 @@
         .booking-subtitle {
             text-align: center;
             color: var(--text-medium);
-            margin-bottom: 18px;
+            margin-bottom: 20px;
             font-size: 0.8em;
             font-weight: 400;
         }
 
-        /* Cal.com Embed */
+        /* Cal.com Embed - Smaller */
         .cal-embed-container {
             width: 100%;
-            min-height: 550px;
+            min-height: 450px;
             border-radius: var(--border-radius);
             overflow: hidden;
         }
 
         /* Responsive */
+        @media (max-width: 900px) {
+            .product-display {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .product-info {
+                padding-top: 0;
+            }
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -300,16 +350,16 @@
                 padding: 20px;
             }
 
+            .product-display {
+                gap: 20px;
+            }
+
             .page-title {
-                font-size: 1.3em;
+                font-size: 1.4em;
             }
 
             .page-subtitle {
-                font-size: 0.8em;
-            }
-
-            .carousel {
-                max-width: 100%;
+                font-size: 0.85em;
             }
 
             .carousel-nav {
@@ -326,25 +376,21 @@
             }
 
             .booking-section {
-                padding: 18px;
+                padding: 20px;
             }
 
             .booking-title {
                 font-size: 1.1em;
             }
 
-            .booking-subtitle {
-                font-size: 0.78em;
-            }
-
             .cal-embed-container {
-                min-height: 500px;
+                min-height: 400px;
             }
         }
 
         @media (max-width: 480px) {
             .page-title {
-                font-size: 1.2em;
+                font-size: 1.3em;
             }
 
             .carousel-nav {
@@ -360,8 +406,8 @@
                 font-size: 1em;
             }
 
-            .carousel {
-                max-width: 100%;
+            .cal-embed-container {
+                min-height: 380px;
             }
         }
     </style>
@@ -380,54 +426,73 @@
 
         <!-- Main Content -->
         <div class="content">
-            <h2 class="page-title">
-                <span class="sparkle">✨</span> Permanent Bracelets <span class="sparkle">✨</span>
-            </h2>
-            <p class="page-subtitle">
-                Choose from our beautiful collection of designs
-            </p>
-
-            <!-- Carousel -->
-            <div class="carousel-container">
-                <div class="carousel">
-                    <div class="carousel-inner" id="carouselInner">
-                        <div class="carousel-item">
-                            <img src="images/IMG_0344.PNG" alt="Permanent Bracelet Design 1">
+            <!-- Product Display - Carousel Left, Info Right -->
+            <div class="product-display">
+                <!-- Carousel - Left Side -->
+                <div class="carousel-container">
+                    <div class="carousel">
+                        <div class="carousel-inner" id="carouselInner">
+                            <div class="carousel-item">
+                                <img src="images/IMG_0344.PNG" alt="Permanent Bracelet Design 1">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0345.PNG" alt="Permanent Bracelet Design 2">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0346.PNG" alt="Permanent Bracelet Design 3">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0347.PNG" alt="Permanent Bracelet Design 4">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0348.PNG" alt="Permanent Bracelet Design 5">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/IMG_0350.PNG" alt="Permanent Bracelet Design 6">
+                            </div>
                         </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0345.PNG" alt="Permanent Bracelet Design 2">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0346.PNG" alt="Permanent Bracelet Design 3">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0347.PNG" alt="Permanent Bracelet Design 4">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0348.PNG" alt="Permanent Bracelet Design 5">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="images/IMG_0350.PNG" alt="Permanent Bracelet Design 6">
-                        </div>
+                        <button class="carousel-nav prev" onclick="moveSlide(-1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="carousel-nav next" onclick="moveSlide(1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
                     </div>
-                    <button class="carousel-nav prev" onclick="moveSlide(-1)">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="carousel-nav next" onclick="moveSlide(1)">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+                    <div class="carousel-dots" id="carouselDots"></div>
                 </div>
-                <div class="carousel-dots" id="carouselDots"></div>
-                <p class="carousel-note">
-                    Many more designs available in-store
-                </p>
+
+                <!-- Product Info - Right Side -->
+                <div class="product-info">
+                    <h2 class="page-title">
+                        <span class="sparkle">✨</span> Permanent Bracelets
+                    </h2>
+                    <p class="page-subtitle">
+                        A forever piece, custom-fitted just for you
+                    </p>
+
+                    <div class="product-description">
+                        <p>Experience the beauty of a permanent bracelet — a delicate chain designed to stay with you, symbolizing lasting memories, friendships, or self-love.</p>
+                    </div>
+
+                    <ul class="product-features">
+                        <li>Choose from multiple elegant chain designs</li>
+                        <li>Custom-fitted to your wrist for perfect comfort</li>
+                        <li>No clasp — seamless and effortless to wear</li>
+                        <li>Appointment takes just 10-15 minutes</li>
+                        <li>Bring friends or family for a shared experience</li>
+                    </ul>
+
+                    <p class="availability-note">
+                        Many more designs available in-store • Visit us to see the full collection
+                    </p>
+                </div>
             </div>
 
             <!-- Booking Section -->
             <div class="booking-section">
                 <h3 class="booking-title">Book Your Visit</h3>
                 <p class="booking-subtitle">
-                    Schedule an appointment
+                    Schedule an appointment to choose your perfect bracelet
                 </p>
 
                 <!-- Cal.com Embed -->

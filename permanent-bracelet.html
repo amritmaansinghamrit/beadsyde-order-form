@@ -208,10 +208,44 @@
 
         .price-tag {
             display: inline-block;
-            font-size: 1.3em;
+            font-size: 1.5em;
             color: var(--text-dark);
-            font-weight: 400;
+            font-weight: 600;
             letter-spacing: 0.03em;
+            margin-bottom: 15px;
+        }
+
+        .highlight-badge {
+            display: inline-block;
+            background: #f0f4ff;
+            color: var(--primary-blue);
+            padding: 8px 16px;
+            border-radius: 2px;
+            font-size: 0.75em;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 14px 0;
+            background: var(--text-dark);
+            color: white;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85em;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 25px;
+        }
+
+        .cta-button:hover {
+            background: var(--primary-blue);
         }
 
         .product-details {
@@ -400,6 +434,8 @@
                         A seamless chain, custom-fitted to your wrist
                     </p>
                     <div class="price-tag">₹999</div>
+                    <div class="highlight-badge">Many more designs available in-store</div>
+                    <button class="cta-button" onclick="scrollToBooking()">Book Appointment</button>
                 </div>
 
                 <div class="product-details">
@@ -418,18 +454,6 @@
                                 <li>Custom fitting to your exact wrist size</li>
                                 <li>Professional application (10-15 minutes)</li>
                                 <li>Aftercare guidance</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <div class="detail-section">
-                        <h3 class="detail-title">In-Store Experience</h3>
-                        <div class="detail-content">
-                            <ul>
-                                <li>Appointment required — Book below</li>
-                                <li>Bring friends or family for a shared experience</li>
-                                <li>Many more designs available than shown online</li>
-                                <li>Consultation included with every appointment</li>
                             </ul>
                         </div>
                     </div>
@@ -516,6 +540,12 @@
             if (touchEndX < touchStartX - 50) moveSlide(1);
             if (touchEndX > touchStartX + 50) moveSlide(-1);
         });
+
+        // Scroll to booking section
+        function scrollToBooking() {
+            const bookingSection = document.querySelector('.booking-section');
+            bookingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     </script>
 
     <!-- Cal.com Embed Script -->
